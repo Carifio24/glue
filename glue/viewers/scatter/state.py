@@ -185,6 +185,9 @@ class ScatterLayerState(MatplotlibLayerState):
     cmap_vmax = DDCProperty(docstring="The upper level for the colormap")
     cmap = DDCProperty(docstring="The colormap to use (when in colormap mode)")
 
+    edgecolor = DDCProperty(docstring="The edge color used to display the data")
+    edgewidth = DDCProperty(docstring="The width of the point border")
+
     # Points
 
     points_mode = DDSCProperty(docstring='Whether to use markers or a density map')
@@ -316,8 +319,12 @@ class ScatterLayerState(MatplotlibLayerState):
         self.cmap = colormaps.members[0][1]
 
         self.size = self.layer.style.markersize
+        self.edgecolor = self.layer.style.markeredgecolor
+        self.edgewidth = self.layer.style.markeredgesize
 
         self._sync_size = keep_in_sync(self, 'size', self.layer.style, 'markersize')
+        self._sync_edgecolor = keep_in_sync(self, 'edgecolor', self.layer.style, 'markeredgecolor')
+        self._sync_edgewidth = keep_in_sync(self, 'edgewidth', self.layer.style, 'markeredgesize')
 
         self.update_from_dict(kwargs)
 

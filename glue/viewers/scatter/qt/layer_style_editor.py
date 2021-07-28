@@ -42,7 +42,9 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
         self.layer_state.add_callback('cmap_mode', self._update_cmap_mode)
         self.layer_state.add_callback('size_mode', self._update_size_mode)
         self.layer_state.add_callback('vector_mode', self._update_vector_mode)
+        self.layer_state.add_callback('fill', self._update_edge_visible)
 
+        self.layer_state.add_callback('density_map', self._update_edge_visible)
         self.layer_state.add_callback('density_map', self._update_size_mode)
         self.layer_state.add_callback('density_map', self._update_warnings)
         self.layer_state.add_callback('density_map', self._update_checkboxes)
@@ -59,6 +61,7 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
         self._update_xerr_visible()
         self._update_yerr_visible()
         self._update_vectors_visible()
+        self._update_edge_visible()
 
         self._update_size_mode()
         self._update_vector_mode()
@@ -130,6 +133,16 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
         self.ui.label_size_scaling.setVisible(not density)
         self.ui.label_fill.setVisible(not density)
         self.ui.bool_fill.setVisible(not density)
+
+    def _update_edge_visible(self, *args):
+        print("Updating edge visible")
+        print(self.layer_state.density_map)
+        edge_visible = self.layer_state.fill and not self.layer_state.density_map
+        print(edge_visible)
+        self.ui.color_edgecolor.setVisible(edge_visible)
+        self.ui.label_edgecolor.setVisible(edge_visible)
+        self.ui.value_edgewidth.setVisible(edge_visible)
+        self.ui.label_edgewidth.setVisible(edge_visible)
 
     def _update_markers_visible(self, *args):
         self.ui.combosel_size_mode.setEnabled(self.layer_state.markers_visible)
@@ -216,6 +229,7 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
             self.ui.combodata_cmap.hide()
             self.ui.label_colormap.hide()
             self.ui.color_color.show()
+            self._update_edge_visible()
         else:
             self.ui.label_cmap_attribute.show()
             self.ui.combosel_cmap_att.show()
@@ -226,3 +240,9 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
             self.ui.combodata_cmap.show()
             self.ui.label_colormap.show()
             self.ui.color_color.hide()
+            self.ui.color_edgecolor.hide()
+            self.ui.label_edgecolor.hide()
+            self.ui.color_edgecolor.hide()
+            self.ui.label_edgecolor.hide()
+            self.ui.value_edgewidth.hide()
+            self.ui.label_edgewidth.hide()

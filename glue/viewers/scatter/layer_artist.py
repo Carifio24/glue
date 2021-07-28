@@ -28,7 +28,7 @@ MARKER_PROPERTIES = set(['size_mode', 'size_att', 'size_vmin', 'size_vmax', 'siz
 LINE_PROPERTIES = set(['linewidth', 'linestyle'])
 DENSITY_PROPERTIES = set(['dpi', 'stretch', 'density_contrast'])
 VISUAL_PROPERTIES = (CMAP_PROPERTIES | MARKER_PROPERTIES | DENSITY_PROPERTIES |
-                     LINE_PROPERTIES | set(['color', 'alpha', 'zorder', 'visible']))
+                     LINE_PROPERTIES | set(['color', 'edgecolor', 'edgewidth', 'alpha', 'zorder', 'visible']))
 
 DATA_PROPERTIES = set(['layer', 'x_att', 'y_att', 'cmap_mode', 'size_mode', 'density_map',
                        'xerr_att', 'yerr_att', 'xerr_visible', 'yerr_visible',
@@ -362,9 +362,10 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
 
                 if self._use_plot_artist():
 
-                    if force or 'color' in changed or 'fill' in changed:
+                    if force or 'color' in changed or 'fill' in changed or 'edgecolor' in changed or 'edgewidth' in changed:
                         if self.state.fill:
-                            self.plot_artist.set_markeredgecolor('none')
+                            self.plot_artist.set_markeredgecolor(self.state.edgecolor)
+                            self.plot_artist.set_markeredgewidth(self.state.edgewidth)
                             self.plot_artist.set_markerfacecolor(self.state.color)
                         else:
                             self.plot_artist.set_markeredgecolor(self.state.color)
@@ -382,11 +383,12 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                         force = True
 
                     if self.state.cmap_mode == 'Fixed':
-                        if force or 'color' in changed or 'cmap_mode' in changed or 'fill' in changed:
+                        if force or 'color' in changed or 'cmap_mode' in changed or 'fill' in changed or 'edgecolor' in changed or 'edgewidth' in changed:
                             self.scatter_artist.set_array(None)
                             if self.state.fill:
                                 self.scatter_artist.set_facecolors(self.state.color)
-                                self.scatter_artist.set_edgecolors('none')
+                                self.scatter_artist.set_edgecolors(self.state.edgecolor)
+                                self.scatter_artist.set_linewidth(self.state.edgewidth)
                             else:
                                 self.scatter_artist.set_facecolors('none')
                                 self.scatter_artist.set_edgecolors(self.state.color)

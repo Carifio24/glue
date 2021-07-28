@@ -25,6 +25,8 @@ class VisualAttributes(HasCallbackProperties):
     :param linestyle: The linestyle (``'solid' | 'dashed' | 'dash-dot' | 'dotted' | 'none'``)
     :param marker: The matplotlib marker shape (``'o' | 's' | '^' | etc``)
     :param markersize: The size of the marker (int)
+    :param markeredgecolor: The border color, as a matplotlib color string
+    :param markeredgesize: The size of the border
 
     """
 
@@ -39,7 +41,7 @@ class VisualAttributes(HasCallbackProperties):
 
         self.parent = parent
         self._atts = ['color', 'alpha', 'linewidth', 'linestyle', 'marker',
-                      'markersize', 'preferred_cmap']
+                      'markersize', 'markeredgecolor', 'markeredgesize', 'preferred_cmap']
         self.color = color
         self.alpha = alpha
         self.preferred_cmap = preferred_cmap
@@ -47,6 +49,8 @@ class VisualAttributes(HasCallbackProperties):
         self.linestyle = 'solid'
         self.marker = 'o'
         self.markersize = 3
+        self.markeredgecolor = 'black'
+        self.markeredgesize = 0
 
     def __eq__(self, other):
         if not isinstance(other, VisualAttributes):
@@ -182,11 +186,28 @@ class VisualAttributes(HasCallbackProperties):
     def markersize(self, value):
         self._markersize = int(value)
 
+    @callback_property
+    def markeredgecolor(self):
+        return self._markeredgecolor
+
+    @markeredgecolor.setter
+    def markeredgecolor(self, value):
+        self._markeredgecolor = value
+
+    @callback_property
+    def markeredgesize(self):
+        return self._markeredgesize
+
+    @markeredgesize.setter
+    def markeredgesize(self, value):
+        self._markeredgesize = value
+
     def __setattr__(self, attribute, value):
 
         # Check that the attribute exists (don't allow new attributes)
         allowed = set(['color', 'linewidth', 'linestyle',
                        'alpha', 'parent', 'marker', 'markersize',
+                       'markeredgecolor', 'markeredgesize',
                        'preferred_cmap'])
         if attribute not in allowed and not attribute.startswith('_'):
             raise Exception("Attribute %s does not exist" % attribute)
