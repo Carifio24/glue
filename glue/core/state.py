@@ -1231,6 +1231,8 @@ def apply_inplace_patches(rec):
     need fixing to be interpretable by the current version of glue.
     """
 
+    default_edge_color = 'st__#000000'
+
     # The following is a patch for session files made with glue 0.15.* or
     # earlier that were read in with a developer version of glue for part of
     # the 0.16 development cycle, and re-saved. Essentially, if coords is set
@@ -1247,3 +1249,23 @@ def apply_inplace_patches(rec):
                             load_log = rec[rec[comp]['log']]
                             if 'force_coords' not in load_log:
                                 load_log['force_coords'] = True
+
+            # The following is a patch for session files to properly set the edge color and size
+            # for session files that were made prior to the existence of these properties.
+            # These properties are added both to the layer style and the layer state.
+            # The assignment of these properties depends on the fill attribute.
+            if 'style' in value and value['style']['_type'] == 'glue.core.visual.VisualAttributes':
+                style = value['style']
+                empty = not style.get('fill', True)
+                if 'edgecolor' not in style:
+                    style['edgecolor'] = style.get('color', default_edge_color) if empty else default_edge_color
+                if 'markeredgesize' not in style:
+                    style['markeredgesize'] = 1
+
+        elif value['_type'] == 'glue.viewers.scatter.state.ScatterLayerState':
+            vals = value['values']
+            empty = not vals.get('fill', True)
+            if 'edgecolor' not in vals:
+                vals['edgecolor'] = vals.get('color', default_edge_color) if empty else default_edge_color
+            if 'edgesize' not in vals:
+                vals['edgesize'] = 1 if empty else 0

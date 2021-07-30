@@ -135,10 +135,7 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
         self.ui.bool_fill.setVisible(not density)
 
     def _update_edge_visible(self, *args):
-        print("Updating edge visible")
-        print(self.layer_state.density_map)
-        edge_visible = self.layer_state.fill and not self.layer_state.density_map
-        print(edge_visible)
+        edge_visible = not self.layer_state.density_map
         self.ui.color_edgecolor.setVisible(edge_visible)
         self.ui.label_edgecolor.setVisible(edge_visible)
         self.ui.value_edgewidth.setVisible(edge_visible)
