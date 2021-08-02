@@ -363,11 +363,10 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                 if self._use_plot_artist():
 
                     if force or 'color' in changed or 'fill' in changed or 'edgecolor' in changed:
+                        self.plot_artist.set_markeredgecolor(self.state.edgecolor)
                         if self.state.fill:
-                            self.plot_artist.set_markeredgecolor(self.state.edgecolor)
                             self.plot_artist.set_markerfacecolor(self.state.color)
                         else:
-                            self.plot_artist.set_markeredgecolor(self.state.edgecolor)
                             self.plot_artist.set_markerfacecolor('none')
 
                     if force or 'size' in changed or 'size_scaling' in changed or 'edgewidth' in changed:
@@ -386,21 +385,22 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                         if force or 'color' in changed or 'cmap_mode' in changed or 'fill' in changed or 'edgecolor' in changed or 'edgewidth' in changed:
                             self.scatter_artist.set_array(None)
                             self.scatter_artist.set_linewidth(self.state.edgewidth)
+                            self.scatter_artist.set_edgecolors(self.state.edgecolor)
                             if self.state.fill:
                                 self.scatter_artist.set_facecolors(self.state.color)
-                                self.scatter_artist.set_edgecolors(self.state.edgecolor)
                             else:
                                 self.scatter_artist.set_facecolors('none')
-                                self.scatter_artist.set_edgecolors(self.state.edgecolor)
-                    elif force or any(prop in changed for prop in CMAP_PROPERTIES) or 'fill' in changed:
-                        self.scatter_artist.set_edgecolors(None)
-                        self.scatter_artist.set_facecolors(None)
-                        c = ensure_numerical(self.layer[self.state.cmap_att].ravel())
-                        set_mpl_artist_cmap(self.scatter_artist, c, self.state)
+                    elif force or any(prop in changed for prop in CMAP_PROPERTIES) or 'fill' in changed or 'edgecolor' in changed or 'edgewidth' in changed:
                         if self.state.fill:
+                            self.scatter_artist.set_facecolors(self.state.color)
                             self.scatter_artist.set_edgecolors('none')
                         else:
                             self.scatter_artist.set_facecolors('none')
+                            self.scatter_artist.set_edgecolors(self.state.edgecolor)
+
+                        self.scatter_artist.set_linewidth(self.state.edgewidth)
+                        c = ensure_numerical(self.layer[self.state.cmap_att].ravel())
+                        set_mpl_artist_cmap(self.scatter_artist, c, self.state)
 
                     if force or any(prop in changed for prop in MARKER_PROPERTIES):
 

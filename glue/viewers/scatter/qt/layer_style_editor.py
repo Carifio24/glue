@@ -135,11 +135,14 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
         self.ui.bool_fill.setVisible(not density)
 
     def _update_edge_visible(self, *args):
-        edge_visible = not self.layer_state.density_map
-        self.ui.color_edgecolor.setVisible(edge_visible)
-        self.ui.label_edgecolor.setVisible(edge_visible)
-        self.ui.value_edgewidth.setVisible(edge_visible)
-        self.ui.label_edgewidth.setVisible(edge_visible)
+        markers = not self.layer_state.density_map
+        fixed_cmap = self.layer_state.cmap_mode == 'Fixed'
+        ec_visible = markers and fixed_cmap
+        ew_visible = markers and (fixed_cmap or not self.layer_state.fill)
+        self.ui.color_edgecolor.setVisible(ec_visible)
+        self.ui.label_edgecolor.setVisible(ec_visible)
+        self.ui.value_edgewidth.setVisible(ew_visible)
+        self.ui.label_edgewidth.setVisible(ew_visible)
 
     def _update_markers_visible(self, *args):
         self.ui.combosel_size_mode.setEnabled(self.layer_state.markers_visible)
@@ -226,7 +229,6 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
             self.ui.combodata_cmap.hide()
             self.ui.label_colormap.hide()
             self.ui.color_color.show()
-            self._update_edge_visible()
         else:
             self.ui.label_cmap_attribute.show()
             self.ui.combosel_cmap_att.show()
@@ -243,3 +245,4 @@ class ScatterLayerStyleEditor(QtWidgets.QWidget):
             self.ui.label_edgecolor.hide()
             self.ui.value_edgewidth.hide()
             self.ui.label_edgewidth.hide()
+        self._update_edge_visible()
