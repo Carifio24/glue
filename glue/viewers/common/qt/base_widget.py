@@ -42,6 +42,8 @@ class BaseQtViewerWidget(QtWidgets.QMainWindow):
         self._mdi_wrapper = None  # GlueMdiSubWindow that self is embedded in
         self._warn_close = True
 
+        self._window_title = None
+
     def dragEnterEvent(self, event):
         """
         Accept drag-and-drop of data or subset objects.
@@ -228,7 +230,14 @@ class BaseQtViewerWidget(QtWidgets.QMainWindow):
 
     @property
     def window_title(self):
+        if self._window_title is not None:
+            return self._window_title
         return str(self)
+
+    @window_title.setter
+    def window_title(self, title):
+        self._window_title = title
+        self.update_window_title()
 
     def update_window_title(self):
         try:
