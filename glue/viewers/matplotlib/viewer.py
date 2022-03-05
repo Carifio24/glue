@@ -125,6 +125,7 @@ class MatplotlibViewerMixin(object):
         self.state.legend.add_callback('alpha', self.update_legend)
         self.state.legend.add_callback('title', self.draw_legend)
         self.state.legend.add_callback('fontsize', self.draw_legend)
+        self.state.legend.add_callback('markersize', self.draw_legend)
         self.state.legend.add_callback('frame_color', self.update_legend)
         self.state.legend.add_callback('show_edge', self.update_legend)
         self.state.legend.add_callback('text_color', self.update_legend)
@@ -201,6 +202,8 @@ class MatplotlibViewerMixin(object):
             if handler_map is not None:
                 kwargs["handler_map"] = handler_map
             legend = self.axes.legend(handles, labels, **kwargs)
+            for handle in legend.legendHandles:
+                handle.set_markersize(self.state.legend.markersize)
             self._update_legend_visual(legend)
             legend.set_draggable(self.state.legend.draggable)
         else:

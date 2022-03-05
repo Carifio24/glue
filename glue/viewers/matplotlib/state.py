@@ -54,6 +54,7 @@ class MatplotlibLegendState(State):
 
     title = DeferredDrawCallbackProperty("", docstring='The title of the legend')
     fontsize = DeferredDrawCallbackProperty(10, docstring='The font size of the title')
+    markersize = DeferredDrawCallbackProperty(5, docstring="The size of the legend markers")
 
     alpha = DeferredDrawCallbackProperty(0.6, docstring='Transparency of the legend frame')
     frame_color = DeferredDrawCallbackProperty("#ffffff", docstring='Frame color of the legend')
@@ -96,6 +97,7 @@ class MatplotlibLegendState(State):
         self.alpha = state.alpha
         self.title = state.title
         self.fontsize = state.fontsize
+        self.markersize = state.markersize
         self.frame_color = state.frame_color
         self.show_edge = state.show_edge
         self.text_color = state.text_color
