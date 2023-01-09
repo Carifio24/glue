@@ -35,6 +35,10 @@ def python_export_scatter_layer(layer, *args):
     script += "y = {0}layer_data['{1}']{2}\n".format(y_transform_open, layer._viewer_state.y_att.label, y_transform_close)
     if full_sphere:
         script += "x = np.arctan2(np.sin(x), np.cos(x))\n"
+    if layer._viewer_state.flip_xaxis:
+        script += "x = np.negative(x)\n"
+    if layer._viewer_state.flip_yaxis:
+        script += "y = np.negative(y)\n"
     script += "keep = ~np.isnan(x) & ~np.isnan(y)\n\n"
     if polar:
         script += 'ax.xaxis.set_major_locator(ThetaLocator(AutoLocator()))\n'
@@ -161,6 +165,11 @@ def python_export_scatter_layer(layer, *args):
             else:
                 script += "vx = layer_data['{0}'][keep]\n".format(layer.state.vx_att.label)
                 script += "vy = layer_data['{0}'][keep]\n".format(layer.state.vy_att.label)
+
+            if layer._viewer_state.flip_xaxis:
+                script += "vx = np.negative(vx)\n"
+            if layer._viewer_state.flip_yaxis:
+                script += "vy = np.negative(vy)\n"
 
         if layer.state.vector_arrowhead:
             hw = 3

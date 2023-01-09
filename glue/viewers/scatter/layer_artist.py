@@ -33,7 +33,8 @@ VISUAL_PROPERTIES = (CMAP_PROPERTIES | MARKER_PROPERTIES | DENSITY_PROPERTIES |
 DATA_PROPERTIES = set(['layer', 'x_att', 'y_att', 'cmap_mode', 'size_mode', 'density_map',
                        'xerr_att', 'yerr_att', 'xerr_visible', 'yerr_visible',
                        'vector_visible', 'vx_att', 'vy_att', 'vector_arrowhead', 'vector_mode',
-                       'vector_origin', 'line_visible', 'markers_visible', 'vector_scaling'])
+                       'vector_origin', 'line_visible', 'markers_visible', 'vector_scaling',
+                       'flip_xaxis', 'flip_yaxis'])
 
 
 def ravel_artists(errorbar_artist):
@@ -220,6 +221,8 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
         else:
             self.enable()
 
+        flip_xaxis = getattr(self._viewer_state, 'flip_xaxis', False)
+        flip_yaxis = getattr(self._viewer_state, 'flip_yaxis', False)
         if self.state.markers_visible:
 
             if self.state.density_map:
@@ -241,6 +244,11 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                 # so we wrap angles to accommodate this
                 if full_sphere:
                     x = np.arctan2(np.sin(x), np.cos(x))
+
+                if flip_xaxis:
+                    x = np.negative(x)
+                if flip_yaxis:
+                    y = np.negative(y)
 
                 self.density_artist.set_label(None)
                 if self._use_plot_artist():
@@ -292,6 +300,11 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                     # assume ang is anti clockwise from the x axis
                     vx = length * np.cos(np.radians(ang))
                     vy = length * np.sin(np.radians(ang))
+
+                if flip_xaxis:
+                    vx = np.negative(vx)
+                if flip_yaxis:
+                    vy = np.negative(vy)
 
             else:
                 vx = None

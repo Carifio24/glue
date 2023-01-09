@@ -29,6 +29,8 @@ class ScatterViewerState(MatplotlibDataViewerState):
     dpi = DDCProperty(72, docstring='The resolution (in dots per inch) of density maps, if present')
     plot_mode = DDSCProperty(docstring="Whether to plot the data in cartesian, polar or another projection")
     angle_unit = DDSCProperty(docstring="Whether to use radians or degrees for any angular coordinates")
+    flip_xaxis = DDCProperty(False, docstring="Whether or not to flip x coordinates; used for full-sphere projections")
+    flip_yaxis = DDCProperty(False, docstring="Whether or not to flip y coordinates; used for full-sphere projections")
 
     def __init__(self, **kwargs):
 
