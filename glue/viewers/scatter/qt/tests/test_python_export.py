@@ -262,7 +262,7 @@ class TestExportPython(BaseTestExportPython):
         self.viewer.state.y_att = self.data.id['b']
         self.assert_same(tmpdir)
         for flags in product([True, False], repeat=2):
-            self.viewer.state.flip_xaxis, self.viewer.state.flip_yaxis = flags
+            self.viewer.state.flip_lonaxis, self.viewer.state.flip_lataxis = flags
             self.assert_same(tmpdir)
 
     def test_full_sphere_degrees(self, tmpdir):

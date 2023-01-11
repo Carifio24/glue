@@ -34,7 +34,7 @@ DATA_PROPERTIES = set(['layer', 'x_att', 'y_att', 'cmap_mode', 'size_mode', 'den
                        'xerr_att', 'yerr_att', 'xerr_visible', 'yerr_visible',
                        'vector_visible', 'vx_att', 'vy_att', 'vector_arrowhead', 'vector_mode',
                        'vector_origin', 'line_visible', 'markers_visible', 'vector_scaling',
-                       'flip_xaxis', 'flip_yaxis'])
+                       'flip_lonaxis', 'flip_lataxis'])
 
 
 def ravel_artists(errorbar_artist):
@@ -221,8 +221,9 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
         else:
             self.enable()
 
-        flip_xaxis = getattr(self._viewer_state, 'flip_xaxis', False)
-        flip_yaxis = getattr(self._viewer_state, 'flip_yaxis', False)
+        flip_lonaxis = getattr(self._viewer_state, 'flip_lonaxis', False)
+        flip_lataxis = getattr(self._viewer_state, 'flip_lataxis', False)
+        full_sphere = getattr(self._viewer_state, 'using_full_sphere', False)
         if self.state.markers_visible:
 
             if self.state.density_map:
@@ -233,7 +234,6 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                 self.plot_artist.set_data([], [])
                 self.scatter_artist.set_offsets(np.zeros((0, 2)))
             else:
-                full_sphere = getattr(self._viewer_state, 'using_full_sphere', False)
                 degrees = getattr(self._viewer_state, 'using_degrees', False)
                 if degrees:
                     x = np.radians(x)
@@ -245,10 +245,10 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                 if full_sphere:
                     x = np.arctan2(np.sin(x), np.cos(x))
 
-                if flip_xaxis:
-                    x = np.negative(x)
-                if flip_yaxis:
-                    y = np.negative(y)
+                    if flip_lonaxis:
+                        x = np.negative(x)
+                    if flip_lataxis:
+                        y = np.negative(y)
 
                 self.density_artist.set_label(None)
                 if self._use_plot_artist():
@@ -301,10 +301,11 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                     vx = length * np.cos(np.radians(ang))
                     vy = length * np.sin(np.radians(ang))
 
-                if flip_xaxis:
-                    vx = np.negative(vx)
-                if flip_yaxis:
-                    vy = np.negative(vy)
+                if full_sphere:
+                    if flip_lonaxis:
+                        vx = np.negative(vx)
+                    if flip_lataxis:
+                        vy = np.negative(vy)
 
             else:
                 vx = None
