@@ -243,7 +243,7 @@ class ScatterLayerArtist(MatplotlibLayerArtist):
                 # The full-sphere projections expect longitude angles in the range [-pi, pi]
                 # so we wrap angles to accommodate this
                 if full_sphere:
-                    x = np.arctan2(np.sin(x), np.cos(x))
+                    x = np.mod(x + np.pi, 2 * np.pi) - np.pi
 
                     if flip_lonaxis:
                         x = np.negative(x)
