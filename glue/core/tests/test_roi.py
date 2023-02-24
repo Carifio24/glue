@@ -708,9 +708,14 @@ class MockAxes(object):
     def __init__(self):
         self.figure = MagicMock()
         self.figure.canvas = MagicMock()
+        self.children = []
 
     def add_patch(self, patch):
-        pass
+        self.children.append(patch)
+
+    def remove_patch(self, patch):
+        if patch in self.children:
+            self.children.remove(patch)
 
 
 class TestMpl(object):
@@ -759,11 +764,11 @@ class TestMpl(object):
         self.roi.start_selection(event)
         assert self.roi._patch.get_visible()
 
-    def test_patch_hidden_on_finalise(self):
+    def test_patch_removed_on_finalise(self):
         event = DummyEvent(5, 5, inaxes=self.axes)
         self.roi.start_selection(event)
         self.roi.finalize_selection(event)
-        assert not self.roi._patch.get_visible()
+        assert self.roi._patch not in self.axes
 
     def test_update_before_start_ignored(self):
         self.roi.update_selection(None)
@@ -809,7 +814,9 @@ class TestMpl(object):
 class TestRectangleMpl(TestMpl):
 
     def _roi_factory(self):
-        return MplRectangularROI(self.axes)
+        roi = MplRectangularROI(self.axes)
+        roi._patch._remove_method = self.axes.remove_patch
+        return roi
 
     def test_scrub(self):
 
@@ -912,7 +919,9 @@ class TestRectangleMpl(TestMpl):
 
 class TestXRangeMpl(TestMpl):
     def _roi_factory(self):
-        return MplXRangeROI(self.axes)
+        roi = MplXRangeROI(self.axes)
+        roi._patch._remove_method = self.axes.remove_patch
+        return roi
 
     def test_proper_roi(self):
         assert isinstance(self.roi._roi, XRangeROI)
@@ -939,8 +948,6 @@ class TestXRangeMpl(TestMpl):
         assert self.roi._roi.defined()
         assert self.roi._roi.range() == (1, 2)
 
-        assert not self.roi._patch.get_visible()
-
     def test_scrub(self):
 
         roi = self.scrub()
@@ -965,7 +972,9 @@ class TestXRangeMpl(TestMpl):
 
 class TestYRangeMpl(TestMpl):
     def _roi_factory(self):
-        return MplYRangeROI(self.axes)
+        roi = MplYRangeROI(self.axes)
+        roi._patch._remove_method = self.axes.remove_patch
+        return roi
 
     def test_proper_roi(self):
         assert isinstance(self.roi._roi, YRangeROI)
@@ -991,8 +1000,6 @@ class TestYRangeMpl(TestMpl):
         self.roi.finalize_selection(ev1)
         assert self.roi._roi.defined()
         assert self.roi._roi.range() == (1, 2)
-
-        assert not self.roi._patch.get_visible()
 
     def test_scrub(self):
 
@@ -1081,7 +1088,9 @@ def test_circular_roi_representation():
 class TestCircleMpl(TestMpl):
 
     def _roi_factory(self):
-        return MplCircularROI(self.axes)
+        roi = MplCircularROI(self.axes)
+        roi._patch._remove_method = self.axes.remove_patch
+        return roi
 
     def setup_method(self, method):
         super(TestCircleMpl, self).setup_method(method)
@@ -1147,7 +1156,9 @@ class TestCircleMpl(TestMpl):
 
 class TestPolyMpl(TestMpl):
     def _roi_factory(self):
-        return MplPolygonalROI(self.axes)
+        roi = MplPolygonalROI(self.axes)
+        roi._patch._remove_method = self.axes.remove_patch
+        return roi
 
     def test_proper_roi(self):
         return isinstance(self.roi._roi, PolygonalROI)
@@ -1228,7 +1239,7 @@ class TestPickMpl(TestMpl):
     def test_patch_shown_on_start(self):
         """No patch to test for."""
 
-    def test_patch_hidden_on_finalise(self):
+    def test_patch_removed_on_finalise(self):
         """No patch to test for."""
 
     def test_canvas_syncs_properly(self):
