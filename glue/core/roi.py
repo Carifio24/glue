@@ -1147,11 +1147,13 @@ class MplRectangularROI(AbstractMplRoi):
         self._patch.set_visible(False)
         if not self._data_space:
             self._patch.set_transform(self._axes.transAxes)
-        self._axes.add_patch(self._patch)
 
     def start_selection(self, event):
+
         if event.inaxes != self._axes:
             return False
+
+        self._axes.add_patch(self._patch)
 
         if self._data_space:
             xval = event.xdata
@@ -1216,7 +1218,7 @@ class MplRectangularROI(AbstractMplRoi):
     def finalize_selection(self, event):
         self._scrubbing = False
         self._mid_selection = False
-        self._patch.set_visible(False)
+        self._patch.remove()
         self._draw()
 
     def _sync_patch(self):
@@ -1264,12 +1266,14 @@ class MplXRangeROI(AbstractMplRoi):
             trans = self._axes.transAxes
         self._patch = Rectangle((0., 0.), 1., 1., transform=trans, zorder=100)
         self._patch.set_visible(False)
-        self._axes.add_patch(self._patch)
 
     def start_selection(self, event):
 
         if event.inaxes != self._axes:
             return False
+
+        self._axes.add_patch(self._patch)
+
         if self._data_space:
             x_val = event.xdata
             y_val = event.ydata
@@ -1325,7 +1329,7 @@ class MplXRangeROI(AbstractMplRoi):
     def finalize_selection(self, event):
         self._scrubbing = False
         self._mid_selection = False
-        self._patch.set_visible(False)
+        self._patch.remove()
         self._draw()
 
     def _sync_patch(self):
@@ -1368,12 +1372,13 @@ class MplYRangeROI(AbstractMplRoi):
             trans = self._axes.transAxes
         self._patch = Rectangle((0., 0.), 1., 1., transform=trans, zorder=100)
         self._patch.set_visible(False)
-        self._axes.add_patch(self._patch)
 
     def start_selection(self, event):
 
         if event.inaxes != self._axes:
             return False
+
+        self._axes.add_patch(self._patch)
 
         if self._data_space:
             xval = event.xdata
@@ -1431,7 +1436,7 @@ class MplYRangeROI(AbstractMplRoi):
     def finalize_selection(self, event):
         self._scrubbing = False
         self._mid_selection = False
-        self._patch.set_visible(False)
+        self._patch.remove()
         self._draw()
 
     def _sync_patch(self):
@@ -1476,7 +1481,6 @@ class MplCircularROI(AbstractMplRoi):
         self._patch = Ellipse((0., 0.), transform=IdentityTransform(),
                               width=0., height=0., zorder=100)
         self._patch.set_visible(False)
-        self._axes.add_patch(self._patch)
 
     def _sync_patch(self):
         if self._roi.defined():
@@ -1494,6 +1498,8 @@ class MplCircularROI(AbstractMplRoi):
 
         if event.inaxes != self._axes:
             return False
+
+        self._axes.add_patch(self._patch)
 
         xy = data_to_pixel(self._axes, [event.xdata], [event.ydata])
         xi = xy[0, 0]
@@ -1585,7 +1591,7 @@ class MplCircularROI(AbstractMplRoi):
     def finalize_selection(self, event):
         self._scrubbing = False
         self._mid_selection = False
-        self._patch.set_visible(False)
+        self._patch.remove()
         self._draw()
 
 
@@ -1616,7 +1622,6 @@ class MplPolygonalROI(AbstractMplRoi):
         self._patch.set_visible(False)
         if not self._data_space:
             self._patch.set_transform(self._axes.transAxes)
-        self._axes.add_patch(self._patch)
 
     def _sync_patch(self):
         if self._roi.defined():
@@ -1632,6 +1637,9 @@ class MplPolygonalROI(AbstractMplRoi):
 
         if event.inaxes != self._axes:
             return False
+
+        if self._patch is not None:
+            self._axes.add_patch(self._patch)
 
         if self._data_space:
             xval = event.xdata
@@ -1692,7 +1700,7 @@ class MplPolygonalROI(AbstractMplRoi):
     def finalize_selection(self, event):
         self._scrubbing = False
         self._mid_selection = False
-        self._patch.set_visible(False)
+        self._patch.remove()
         self._draw()
 
 
