@@ -3,6 +3,8 @@
 import sys
 
 import pytest
+from matplotlib.colors import to_hex
+from numpy import isclose
 from numpy.testing import assert_allclose
 
 try:
@@ -13,6 +15,7 @@ else:
     OBJGRAPH_INSTALLED = True
 
 from glue.core import Data
+from glue.core.tests.test_state import clone
 from glue.core.exceptions import IncompatibleDataException
 from glue.app.qt.application import GlueApplication
 from glue.core.roi import XRangeROI
@@ -679,3 +682,42 @@ class BaseTestMatplotlibDataViewer(object):
                 data.add_component(self.data[cid], cid.label)
         self.data.update_values_from_data(data)
         assert self.draw_count == 2
+
+    def test_legend_serialization(self):
+        legend_state = self.viewer.state.legend
+        legend_state.visible = True
+        legend_state.location = "best"
+        legend_state.title = "Legend"
+        legend_state.fontsize = 13
+        legend_state.alpha = 0.7
+        legend_state.frame_color = "#1e00f1"
+        legend_state.show_edge = False
+        legend_state.text_color = "#fad8f1"
+
+        new_state = clone(self.viewer.state)
+        new_viewer = self.viewer_cls(self.session, state=new_state)
+        new_legend_state = new_state.legend
+        assert new_legend_state.visible
+        assert new_legend_state.location == "best"
+        assert new_legend_state.title == "Legend"
+        assert new_legend_state.fontsize == 13
+        assert isclose(new_legend_state.alpha, 0.7, rtol=1/99)  # Opacity slider goes from 0 -> 1 in increments of 1/99
+        assert new_legend_state.frame_color == "#1e00f1"
+        assert not new_legend_state.show_edge
+        assert new_legend_state.text_color == "#fad8f1"
+
+        legend = new_viewer.axes.get_legend()
+        assert legend.get_visible()
+        assert not legend.get_draggable()
+        assert legend._get_loc() == legend.codes["best"]
+
+        title = legend.get_title()
+        assert title.get_text() == "Legend"
+        assert title.get_fontsize() == 13
+        assert title.get_color() == "#fad8f1"
+        assert all([t.get_color() == "#fad8f1" for t in legend.get_texts()])
+
+        frame = legend.get_frame()
+        assert isclose(frame.get_alpha(), 0.7, rtol=1/99)
+        assert to_hex(frame.get_facecolor()) == "#1e00f1"
+        assert frame.get_edgecolor() == (0, 0, 0, frame.get_alpha())
