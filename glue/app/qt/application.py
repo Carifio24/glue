@@ -11,7 +11,7 @@ from qtpy.QtCore import Qt
 
 from glue.core.application_base import Application
 from glue.core.message import ApplicationClosedMessage, DataCollectionMessage, SettingsChangeMessage
-from glue.core import command, BaseData
+from glue.core import command, BaseData, Subset
 from glue.core.coordinates import WCSCoordinates
 from glue import env
 from glue.main import load_plugins
@@ -1409,6 +1409,16 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         self.render(painter, QtCore.QPoint(), QtGui.QRegion(), flags)
         image.save(filename)
         painter.end()
+
+    def move_viewer_to_tab(self, viewer, tab):
+        sub_window = viewer.parent()
+        current_tab = sub_window.mdiArea()
+        new_tab = self.tab(tab)
+        if new_tab is None:
+            raise ValueError(f"Invalid tab index: {tab}")
+        if current_tab is not new_tab:
+            sub_window.setParent(new_tab)
+            sub_window.show()
 
     def add_datasets(self, *args, **kwargs):
         result = super(GlueApplication, self).add_datasets(*args, **kwargs)
