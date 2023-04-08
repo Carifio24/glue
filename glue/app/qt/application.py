@@ -16,7 +16,7 @@ from glue.core.coordinates import WCSCoordinates
 from glue import env
 from glue.main import load_plugins
 from glue.icons.qt import get_icon
-from glue.utils.qt import get_qapp, update_global_font_size
+from glue.utils.qt import get_qapp, update_global_font_size, pick_item
 from glue.app.qt.actions import action
 from glue.dialogs.data_wizard.qt import data_wizard
 from glue.dialogs.link_editor.qt import LinkEditor
@@ -1417,8 +1417,16 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         if new_tab is None:
             raise ValueError(f"Invalid tab index: {tab}")
         if current_tab is not new_tab:
-            sub_window.setParent(new_tab)
-            sub_window.show()
+            # We do this rather than just use setParent on sub_window
+            # so that the moved window is put in a reasonable place
+            # in the new tab (i.e. not on top of another viewer)
+            current_tab.removeSubWindow(sub_window)
+            new_tab.addSubWindow(sub_window)
+
+    def choose_move_viewer_to_tab(self, viewer):
+        tab = pick_item(range(self.tab_count), self.tab_names, title="Move Viewer", label="Select a tab")
+        if tab is not None:
+            self.move_viewer_to_tab(viewer, tab)
 
     def add_datasets(self, *args, **kwargs):
         result = super(GlueApplication, self).add_datasets(*args, **kwargs)
