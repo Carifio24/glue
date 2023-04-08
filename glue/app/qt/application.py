@@ -1432,7 +1432,6 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
             current_window.close()
 
             self.add_widget(viewer, tab=tab)
-            self.tab_widget.setCurrentWidget(new_tab)
 
     def choose_move_viewer_to_tab(self, viewer):
         tab = pick_item(range(self.tab_count), self.tab_names, title="Move Viewer", label="Select a tab")

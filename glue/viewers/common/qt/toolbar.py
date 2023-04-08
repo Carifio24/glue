@@ -5,7 +5,6 @@ from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt
 
 from glue.core.callback_property import add_callback
-from glue.utils.qt import get_qapp
 from glue.viewers.common.tool import CheckableTool, DropdownTool
 from glue.icons.qt import get_icon
 
