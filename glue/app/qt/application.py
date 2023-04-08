@@ -16,7 +16,7 @@ from glue.core.coordinates import WCSCoordinates
 from glue import env
 from glue.main import load_plugins
 from glue.icons.qt import get_icon
-from glue.utils.qt import get_qapp, update_global_font_size
+from glue.utils.qt import get_qapp, update_global_font_size, pick_item
 from glue.app.qt.actions import action
 from glue.dialogs.data_wizard.qt import data_wizard
 from glue.dialogs.link_editor.qt import LinkEditor
@@ -1434,6 +1434,10 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
             self.add_widget(viewer, tab=tab)
             self.tab_widget.setCurrentWidget(new_tab)
 
+    def choose_move_viewer_to_tab(self, viewer):
+        tab = pick_item(range(self.tab_count), self.tab_names, title="Move Viewer", label="Select a tab")
+        if tab is not None:
+            self.move_viewer_to_tab(viewer, tab)
 
     def add_datasets(self, *args, **kwargs):
         result = super(GlueApplication, self).add_datasets(*args, **kwargs)

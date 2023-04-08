@@ -5,6 +5,7 @@ from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import Qt
 
 from glue.core.callback_property import add_callback
+from glue.utils.qt import get_qapp
 from glue.viewers.common.tool import CheckableTool, DropdownTool
 from glue.icons.qt import get_icon
 
@@ -32,6 +33,9 @@ class BasicToolbar(QtWidgets.QToolBar):
         self._default_mouse_mode_cls = default_mouse_mode_cls
         self._default_mouse_mode = None
         self.setup_default_modes()
+
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
     def setup_default_modes(self):
         if self._default_mouse_mode_cls is not None:
@@ -214,3 +218,17 @@ class BasicToolbar(QtWidgets.QToolBar):
             self._default_mouse_mode.deactivate()
             self._default_mouse_mode = None
         self.active_tool = None
+
+    def show_context_menu(self, point):
+        viewer = self.parent()
+        app = viewer.session.application
+
+        menu = QtWidgets.QMenu(self)
+        move_action = QtGui.QAction(get_icon("glue_move_x"), 'Move to tab', self)
+        move_action.setEnabled(app.tab_count > 1)
+
+        menu.addAction(move_action)
+        action = menu.exec_(self.mapToGlobal(point))
+
+        if action == move_action:
+            app.choose_move_viewer_to_tab(viewer)
