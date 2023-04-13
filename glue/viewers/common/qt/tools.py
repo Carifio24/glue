@@ -13,14 +13,14 @@ class WindowTool(SimpleToolMenu):
     """
 
     tool_id = 'window'
-    icon = 'glue_move_x'
+    icon = 'windows'
     tool_tip = 'Modify the viewer window'
 
 
 @viewer_tool
 class MoveTabTool(Tool):
 
-    icon = 'glue_move_x'
+    icon = 'windows'
     tool_id = 'window:movetab'
     action_text = 'Move to another tab'
     tool_tip = 'Move viewer to another tab'
