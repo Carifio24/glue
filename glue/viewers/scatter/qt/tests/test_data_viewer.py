@@ -1002,3 +1002,19 @@ class TestScatterViewer(object):
             assert projtrans._state['x_scale'] == 'linear'
             assert projtrans._state['y_scale'] == 'linear'
             subset.delete()
+
+    def test_enabled_tools(self):
+
+        hidden_tools = dict(rectilinear=[], polar=['mpl:pan'])
+        for proj in ['aitoff', 'hammer', 'mollweide', 'lambert']:
+            hidden_tools[proj] = ['mpl:pan', 'mpl:zoom']
+
+        for proj in hidden_tools.keys():
+            self.viewer.plot_mode = proj
+            toolbar = self.viewer.toolbar
+            hidden = hidden_tools[proj]
+            for tool_id in self.viewer.tools:
+                expected = tool_id not in hidden
+                assert toolbar.tools[tool_id].enabled == expected
+                assert toolbar.actions[tool_id].isVisible() == expected
+                assert toolbar.actions[tool_id].isEnabled() == expected
