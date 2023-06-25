@@ -325,6 +325,18 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>graph_widget</tabstop>
+  <tabstop>combosel_data1</tabstop>
+  <tabstop>button_flip_data</tabstop>
+  <tabstop>combosel_data2</tabstop>
+  <tabstop>listsel_att1</tabstop>
+  <tabstop>listsel_att2</tabstop>
+  <tabstop>button_simple_link</tabstop>
+  <tabstop>listsel_current_link</tabstop>
+  <tabstop>button_add_link</tabstop>
+  <tabstop>button_remove_link</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

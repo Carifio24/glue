@@ -392,6 +392,24 @@
    <header>glue.viewers.matplotlib.qt.legend_editor</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tab_widget</tabstop>
+  <tabstop>combosel_x_att</tabstop>
+  <tabstop>bool_x_log_</tabstop>
+  <tabstop>combosel_y_att</tabstop>
+  <tabstop>bool_y_log_</tabstop>
+  <tabstop>combosel_plot_mode</tabstop>
+  <tabstop>combosel_angle_unit</tabstop>
+  <tabstop>valuetext_x_min</tabstop>
+  <tabstop>button_flip_x</tabstop>
+  <tabstop>valuetext_x_max</tabstop>
+  <tabstop>bool_x_log</tabstop>
+  <tabstop>button_full_circle</tabstop>
+  <tabstop>valuetext_y_min</tabstop>
+  <tabstop>button_flip_y</tabstop>
+  <tabstop>valuetext_y_max</tabstop>
+  <tabstop>bool_y_log</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

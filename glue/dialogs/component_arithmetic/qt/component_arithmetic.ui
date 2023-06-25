@@ -257,6 +257,15 @@
    <header>glue.dialogs.common.qt.component_tree_widget</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>combosel_data</tabstop>
+  <tabstop>button_add_derived</tabstop>
+  <tabstop>button_edit_derived</tabstop>
+  <tabstop>button_remove_derived</tabstop>
+  <tabstop>list_derived_components</tabstop>
+  <tabstop>button_cancel</tabstop>
+  <tabstop>button_ok</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

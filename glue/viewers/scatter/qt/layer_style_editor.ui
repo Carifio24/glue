@@ -1049,6 +1049,43 @@
    <header>glue.utils.qt.colors</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tab_widget</tabstop>
+  <tabstop>combosel_cmap_mode</tabstop>
+  <tabstop>combosel_cmap_att</tabstop>
+  <tabstop>valuetext_cmap_vmin</tabstop>
+  <tabstop>button_flip_cmap</tabstop>
+  <tabstop>valuetext_cmap_vmax</tabstop>
+  <tabstop>combodata_cmap</tabstop>
+  <tabstop>value_alpha</tabstop>
+  <tabstop>bool_markers_visible</tabstop>
+  <tabstop>combosel_points_mode</tabstop>
+  <tabstop>combosel_size_mode</tabstop>
+  <tabstop>value_size</tabstop>
+  <tabstop>bool_fill</tabstop>
+  <tabstop>combosel_size_att</tabstop>
+  <tabstop>valuetext_size_vmin</tabstop>
+  <tabstop>button_flip_size</tabstop>
+  <tabstop>valuetext_size_vmax</tabstop>
+  <tabstop>value_size_scaling</tabstop>
+  <tabstop>combosel_stretch</tabstop>
+  <tabstop>value_dpi</tabstop>
+  <tabstop>value_density_contrast</tabstop>
+  <tabstop>bool_line_visible</tabstop>
+  <tabstop>value_linewidth</tabstop>
+  <tabstop>combosel_linestyle</tabstop>
+  <tabstop>bool_xerr_visible</tabstop>
+  <tabstop>combosel_xerr_att</tabstop>
+  <tabstop>bool_yerr_visible</tabstop>
+  <tabstop>combosel_yerr_att</tabstop>
+  <tabstop>bool_vector_visible</tabstop>
+  <tabstop>combosel_vector_mode</tabstop>
+  <tabstop>combosel_vx_att</tabstop>
+  <tabstop>combosel_vy_att</tabstop>
+  <tabstop>value_vector_scaling</tabstop>
+  <tabstop>combosel_vector_origin</tabstop>
+  <tabstop>bool_vector_arrowhead</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

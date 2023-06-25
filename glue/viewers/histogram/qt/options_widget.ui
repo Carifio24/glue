@@ -418,7 +418,7 @@
        </item>
       </layout>
      </widget>
-      <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="tab_4">
       <attribute name="title">
        <string>Legend</string>
       </attribute>
@@ -457,6 +457,26 @@
    <header>glue.viewers.matplotlib.qt.legend_editor</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tab_widget</tabstop>
+  <tabstop>combosel_x_att</tabstop>
+  <tabstop>bool_x_log_</tabstop>
+  <tabstop>valuetext_hist_x_min</tabstop>
+  <tabstop>valuetext_hist_x_max</tabstop>
+  <tabstop>value_hist_n_bin</tabstop>
+  <tabstop>button_update_bins_to_view</tabstop>
+  <tabstop>bool_normalize</tabstop>
+  <tabstop>bool_cumulative</tabstop>
+  <tabstop>bool_y_log_</tabstop>
+  <tabstop>bool_common_n_bin</tabstop>
+  <tabstop>valuetext_x_min</tabstop>
+  <tabstop>button_flip_x</tabstop>
+  <tabstop>valuetext_x_max</tabstop>
+  <tabstop>bool_x_log</tabstop>
+  <tabstop>valuetext_y_min</tabstop>
+  <tabstop>valuetext_y_max</tabstop>
+  <tabstop>bool_y_log</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

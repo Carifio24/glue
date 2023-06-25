@@ -208,6 +208,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>text_x_axislabel</tabstop>
+  <tabstop>text_y_axislabel</tabstop>
+  <tabstop>value_x_axislabel_size</tabstop>
+  <tabstop>value_y_axislabel_size</tabstop>
+  <tabstop>combosel_x_axislabel_weight</tabstop>
+  <tabstop>combosel_y_axislabel_weight</tabstop>
+  <tabstop>value_x_ticklabel_size</tabstop>
+  <tabstop>value_y_ticklabel_size</tabstop>
+  <tabstop>button_apply_all</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

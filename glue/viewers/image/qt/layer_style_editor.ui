@@ -304,6 +304,20 @@
    <header>glue.utils.qt.colors</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>combosel_attribute</tabstop>
+  <tabstop>combosel_percentile</tabstop>
+  <tabstop>combosel_stretch</tabstop>
+  <tabstop>valuetext_v_min</tabstop>
+  <tabstop>button_flip_limits</tabstop>
+  <tabstop>valuetext_v_max</tabstop>
+  <tabstop>combodata_cmap</tabstop>
+  <tabstop>value_alpha</tabstop>
+  <tabstop>bool_global_sync</tabstop>
+  <tabstop>value_contrast</tabstop>
+  <tabstop>value_bias</tabstop>
+  <tabstop>button_reset_contrast_bias</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

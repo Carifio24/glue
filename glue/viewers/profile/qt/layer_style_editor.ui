@@ -189,9 +189,9 @@
    </item>
    <item row="0" column="1" colspan="2">
     <widget class="QComboBox" name="combosel_attribute">
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
-      </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+     </property>
     </widget>
    </item>
   </layout>
@@ -203,6 +203,14 @@
    <header>glue.utils.qt.colors</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>combosel_attribute</tabstop>
+  <tabstop>valuetext_v_min</tabstop>
+  <tabstop>button_flip_limits</tabstop>
+  <tabstop>valuetext_v_max</tabstop>
+  <tabstop>value_alpha</tabstop>
+  <tabstop>value_linewidth</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

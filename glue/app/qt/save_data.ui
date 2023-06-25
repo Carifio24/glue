@@ -171,6 +171,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>combosel_data</tabstop>
+  <tabstop>combosel_subset</tabstop>
+  <tabstop>list_component</tabstop>
+  <tabstop>button_select_none</tabstop>
+  <tabstop>button_select_all</tabstop>
+  <tabstop>combosel_exporter</tabstop>
+  <tabstop>button_cancel</tabstop>
+  <tabstop>button_ok</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

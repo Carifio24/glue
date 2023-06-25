@@ -315,6 +315,17 @@
    <header>glue.utils.qt.colors</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tab_widget</tabstop>
+  <tabstop>combo_theme</tabstop>
+  <tabstop>slider_alpha</tabstop>
+  <tabstop>checkbox_apply</tabstop>
+  <tabstop>spinner_font_size</tabstop>
+  <tabstop>button_reset_dialogs</tabstop>
+  <tabstop>checkbox_save</tabstop>
+  <tabstop>cancel</tabstop>
+  <tabstop>ok</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
