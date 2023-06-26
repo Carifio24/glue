@@ -92,6 +92,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -208,6 +211,7 @@
   <tabstop>valuetext_v_min</tabstop>
   <tabstop>button_flip_limits</tabstop>
   <tabstop>valuetext_v_max</tabstop>
+  <tabstop>color_color</tabstop>
   <tabstop>value_alpha</tabstop>
   <tabstop>value_linewidth</tabstop>
  </tabstops>

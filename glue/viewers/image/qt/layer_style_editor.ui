@@ -115,6 +115,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -314,6 +317,7 @@
   <tabstop>combodata_cmap</tabstop>
   <tabstop>value_alpha</tabstop>
   <tabstop>bool_global_sync</tabstop>
+  <tabstop>color_color</tabstop>
   <tabstop>value_contrast</tabstop>
   <tabstop>value_bias</tabstop>
   <tabstop>button_reset_contrast_bias</tabstop>

@@ -195,6 +195,10 @@ class BasicToolbar(QtWidgets.QToolBar):
 
         self.actions[tool.tool_id] = action
 
+        widget = self.widgetForAction(action)
+        if widget:
+            widget.setFocusPolicy(Qt.TabFocus)
+
         # Bind tool visibility to tool.enabled
         def toggle(state):
             action.setVisible(state)

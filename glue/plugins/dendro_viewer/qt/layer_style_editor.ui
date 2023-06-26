@@ -66,6 +66,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -141,6 +144,11 @@
    <header>glue.utils.qt.colors</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>color_color</tabstop>
+  <tabstop>value_alpha</tabstop>
+  <tabstop>value_linewidth</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

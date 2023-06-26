@@ -107,6 +107,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -1052,6 +1055,7 @@
  <tabstops>
   <tabstop>tab_widget</tabstop>
   <tabstop>combosel_cmap_mode</tabstop>
+  <tabstop>color_color</tabstop>
   <tabstop>combosel_cmap_att</tabstop>
   <tabstop>valuetext_cmap_vmin</tabstop>
   <tabstop>button_flip_cmap</tabstop>
