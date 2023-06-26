@@ -3,6 +3,7 @@ from matplotlib.colors import ColorConverter
 
 from glue import config
 from qtpy import QtCore, QtWidgets, QtGui
+from qtpy.QtCore import Qt
 from echo import add_callback
 from glue.utils import nonpartial
 from glue.utils.qt.widget_properties import WidgetProperty
@@ -149,15 +150,22 @@ class QColorBox(QtWidgets.QLabel):
 
     mousePressed = QtCore.Signal()
     colorChanged = QtCore.Signal()
+    enterPressed = QtCore.Signal()
 
     def __init__(self, *args, **kwargs):
         super(QColorBox, self).__init__(*args, **kwargs)
         self.mousePressed.connect(nonpartial(self.query_color))
+        self.enterPressed.connect(nonpartial(self.query_color))
         self.colorChanged.connect(nonpartial(self.on_color_change))
         self.setColor("#000000")
 
     def mousePressEvent(self, event):
         self.mousePressed.emit()
+        event.accept()
+
+    def keyPressEvent(self, event):
+        if event.key() in [Qt.Key_Enter, Qt.Key_Return]:
+            self.enterPressed.emit()
         event.accept()
 
     def query_color(self):
