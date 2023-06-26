@@ -111,15 +111,28 @@ def _application_stylesheet(palette):
     # TODO: Without a border setting this color change doesn't work.
     # Figure out why
     bg_color = rgb_string(palette.color(QPalette.Base))
+    button_active = rgb_string(palette.color(QPalette.Active, QPalette.Button))
+    alternate_base_color = rgb_string(palette.color(QPalette.AlternateBase))
     text_color = rgb_string(palette.color(QPalette.Text))
     highlight_color = rgb_string(palette.color(QPalette.Highlight))
     highlight_text_color = rgb_string(palette.color(QPalette.HighlightedText))
+    button = rgb_string(palette.color(QPalette.Button))
     return f"""
     QToolBar {{
         background-color: {bg_color};
         border: none;
     }}
 
+    QToolButton {{
+        background-color: {bg_color};
+        color: {text_color};
+        border: none;
+    }}
+
+    QToolButton:checked {{
+        background-color: {button_active};  
+    }}
+    
     QTabBar::tab {{
         background-color: {bg_color};
         color: {text_color};
