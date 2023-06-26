@@ -18,6 +18,7 @@ from glue.core.coordinates import WCSCoordinates
 from glue import env
 from glue.main import load_plugins
 from glue.icons.qt import get_icon
+from glue.utils.colors import rgb_string
 from glue.utils.qt import get_qapp, update_global_font_size
 from glue.app.qt.actions import action
 from glue.dialogs.data_wizard.qt import data_wizard
@@ -87,7 +88,7 @@ LIGHT_PALETTE.setColor(QPalette.Disabled, QPalette.Text, QColor(190, 190, 190))
 LIGHT_PALETTE.setColor(QPalette.Disabled, QPalette.Light, Qt.white)
 
 
-def _stylesheet(text_color='black', bg_color='white', in_prompt_color='deepskyblue', out_prompt_color='crimson'):
+def _terminal_stylesheet(text_color='black', bg_color='white', in_prompt_color='deepskyblue', out_prompt_color='crimson'):
     return f"""
     QPlainTextEdit, QTextEdit {{
         background-color: {bg_color};
@@ -106,12 +107,34 @@ def _stylesheet(text_color='black', bg_color='white', in_prompt_color='deepskybl
     .out-prompt {{ color: {out_prompt_color}; }}
     """
 
+def _application_stylesheet(palette):
+    # TODO: Without a border setting this color change doesn't work.
+    # Figure out why
+    bg_color = rgb_string(palette.color(QPalette.Base))
+    text_color = rgb_string(palette.color(QPalette.Text))
+    highlight_color = rgb_string(palette.color(QPalette.Highlight))
+    highlight_text_color = rgb_string(palette.color(QPalette.HighlightedText))
+    return f"""
+    QToolBar {{
+        background-color: {bg_color};
+        border: none;
+    }}
+
+    QTabBar::tab {{
+        background-color: {bg_color};
+        color: {text_color};
+    }}
+    QTabBar::tab:selected {{
+        background-color: {highlight_color};
+        color: {highlight_text_color}; 
+    }}
+    """
 
 def _fix_ipython_pylab():
 
     try:
         from IPython import get_ipython
-    except ImportError:
+    except ImportError-color:
         return
 
     shell = get_ipython()
@@ -576,6 +599,8 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         else:
             palette = self.app.style().standardPalette()
         self.app.setPalette(palette)
+
+        self.setStyleSheet(_application_stylesheet(palette))
 
         # Update the background color of the data canvas on each tab
         for i in range(self.tab_count):
@@ -1292,7 +1317,7 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
                 in_prompt_color='deepskyblue' if dark else 'navy',
                 out_prompt_color='crimson' if dark else 'darkred'
             )
-            terminal.style_sheet = _stylesheet(**terminal_colors)
+            terminal.style_sheet = _terminal_stylesheet(**terminal_colors)
             terminal.syntax_style = 'rrt' if dark else 'default'
 
     def start(self, size=None, position=None, block=True, maximized=True):

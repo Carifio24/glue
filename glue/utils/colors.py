@@ -25,3 +25,17 @@ def alpha_blend_colors(colors, additional_alpha=1.0):
         srca, srcr, srcg, srcb = outa, outr, outg, outb
 
     return srcr, srcg, srcb, srca
+
+
+def rgb_string(color, alpha=False):
+    """
+    Given a QColor, return an RGB/RGBA string representing
+    that color.
+    """
+
+    prefix = "rgba" if alpha else "rgb"
+    components = [color.red(), color.green(), color.blue()]
+    if alpha:
+        components.append(color.alpha())
+    components = [str(c) for c in components]
+    return f"{prefix}({', '.join(components)})"
