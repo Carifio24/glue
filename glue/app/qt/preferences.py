@@ -118,6 +118,7 @@ class PreferencesDialog(QtWidgets.QDialog):
             self.panes.append(pane)
 
     def _update_theme_from_colors(self, *args):
+        print("In _update_theme_from_colors")
         if (rgb(self.background) == (1, 1, 1) and rgb(self.foreground) == (0, 0, 0) and
                 rgb(self.data_color) == (0.35, 0.35, 0.35) and np.allclose(self.data_alpha, 0.8)):
             self.theme = 'Black on White'
@@ -128,6 +129,7 @@ class PreferencesDialog(QtWidgets.QDialog):
             self.theme = 'Custom'
 
     def _update_colors_from_theme(self, *args):
+        print("In _update_colors_from_theme")
         if self.theme == 'Black on White':
             self.foreground = 'black'
             self.background = 'white'
@@ -142,10 +144,13 @@ class PreferencesDialog(QtWidgets.QDialog):
             raise ValueError("Unknown theme: {0}".format(self.theme))
 
     def _update_app_theme(self, *args):
-        if self.app_theme == 'Dark' and self.theme == 'Black on White':
+        print("In _update_app_theme")
+        if self.app_theme == 'dark' and self.theme == 'Black on White':
             self.theme = 'White on Black'
-        elif self.app_theme == 'Light' and self.theme == 'White on Black':
+            print("Updated to WoB")
+        elif self.app_theme == 'light' and self.theme == 'White on Black':
             self.theme = 'Black on White'
+            print("Updated to BoW")
         self._update_colors_from_theme()
 
     def _reset_dialogs(self, *args):

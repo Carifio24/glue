@@ -6,6 +6,8 @@ import weakref
 import warnings
 import webbrowser
 
+from qdarktheme import setup_theme
+
 from qtpy import QtCore, QtWidgets, QtGui, compat
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor, QPalette
@@ -556,32 +558,30 @@ class GlueApplication(Application, QtWidgets.QMainWindow):
         self._button_edit_components.setEnabled(len(self.data_collection) > 0)
 
     def _use_dark_terminal(self):
-        if settings.APP_THEME == 'System default':
+        if settings.APP_THEME == 'auto':
             # Try to identify whether we think the system theme is light or dark
             palette = self.app.palette()
             window_color = palette.color(QPalette.Window)
             text_color = palette.color(QPalette.WindowText)
             return window_color.lightness() < text_color.lightness()
         else:
-            return settings.APP_THEME == 'Dark'
+            return settings.APP_THEME == 'dark'
 
     def _on_ui_settings_change(self, *event):
         update_global_font_size()
 
         # Update the global app palette
-        if settings.APP_THEME == 'Light':
-            palette = LIGHT_PALETTE
-        elif settings.APP_THEME == 'Dark':
-            palette = DARK_PALETTE
-        else:
-            palette = self.app.style().standardPalette()
-        self.app.setPalette(palette)
+        # if settings.APP_THEME == 'light':
+        #     palette = LIGHT_PALETTE
+        # elif settings.APP_THEME == 'dark':
+        #     palette = DARK_PALETTE
+        # else:
+        #     palette = self.app.style().standardPalette()
+        # self.app.setPalette(palette)
 
-        # Update the background color of the data canvas on each tab
-        for i in range(self.tab_count):
-            tab = self.tab(i)
-            tab.setBackground(palette.color(QPalette.AlternateBase))
-
+        print(settings.APP_THEME)
+        setup_theme(settings.APP_THEME)
+ 
         self._update_terminal_style()
 
     def keyPressEvent(self, event):
