@@ -8,8 +8,6 @@ from contextlib import contextmanager
 import numpy as np
 import pandas as pd
 
-from fast_histogram import histogram1d, histogram2d
-
 from glue.core.message import (DataUpdateMessage, DataRemoveComponentMessage,
                                DataAddComponentMessage, NumericalDataChangedMessage,
                                SubsetCreateMessage, ComponentsChangedMessage,
@@ -2048,9 +2046,6 @@ class Data(BaseCartesianData):
             ymax = np.log10(ymax)
             y = np.log10(y)
 
-        # By default fast-histogram drops values that are exactly xmax, so we
-        # increase xmax very slightly to make sure that this doesn't happen, to
-        # be consistent with np.histogram.
         if ndim >= 1:
             xmax += 10 * np.spacing(xmax)
         if ndim >= 2:
@@ -2058,10 +2053,14 @@ class Data(BaseCartesianData):
 
         if ndim == 1:
             range = (xmin, xmax)
-            return histogram1d(x, range=range, bins=bins[0], weights=w) * correction
+            hist, _edges = np.histogram(x, range=range, bins=bins[0], weights=w)
+            hist *= correction
+            return hist
         elif ndim > 1:
             range = [(xmin, xmax), (ymin, ymax)]
-            return histogram2d(x, y, range=range, bins=bins, weights=w) * correction
+            hist, _edges = np.histogram2d(x, y, range=range, bins=bins, weights=w) * correction
+            hist *= correction
+            return hist
 
     def compute_fixed_resolution_buffer(self, *args, **kwargs):
         from .fixed_resolution_buffer import compute_fixed_resolution_buffer
