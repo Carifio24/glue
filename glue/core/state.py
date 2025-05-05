@@ -1272,27 +1272,46 @@ def apply_inplace_patches(rec):
     need fixing to be interpretable by the current version of glue.
     """
 
+    # This is a patch for session files made with glue 1.12.* or earlier.
+    # When glue-qt was separated out from glue, the class names of the Qt application,
+    # viewers, etc. were changed This patch simply attempts to do a proper
+    # renaming to the new glue-qt class names.
+    # We have two different regexes because there are only Qt-specific layer artists for
+    # the histogram and profile viewers
     import re
-    PRE_GLUEQT_PATTERN = re.compile(r"^glue\.viewers\.(histogram|image|profile|scatter|table)\.qt\.data_viewer\.(.*)$")
-    def map_qt_viewer(viewer_type):
-        match = PRE_GLUEQT_PATTERN.match(viewer_type)
+    PRE_GLUEQT_VIEWER_PATTERN = re.compile(r"^glue\.viewers\.(histogram|image|profile|scatter|table)\.qt\.(.*)$")
+    PRE_GLUEQT_LAYER_PATTERN = re.compile(r"^glue.viewers\.(histogram|profile)\.qt\.(.*)$")
+    def map_qt_item(item, pattern):
+        match = pattern.match(item)
         if match is not None:
-            viewer = match.group(1)
-            viewer_cls = match.group(2)
-            return f"glue_qt.viewers.{viewer}.data_viewer.{viewer_cls}"
+            viewer_type = match.group(1)
+            suffix = match.group(2)
+            return f"glue_qt.viewers.{viewer_type}.{suffix}"
+        return item
 
-        if viewer_type == "glue.plugins.dendro_viewer.qt.data_viewer.DendrogramViewer":
-            return "glue_qt.plugins.dendro_viewer.data_viewer.DendrogramViewer"
+    def map_qt_viewer(viewer_type):
+        return map_qt_item(viewer_type, PRE_GLUEQT_VIEWER_PATTERN)
 
-        return viewer_type
+    def map_qt_layer(layer_type):
+        return map_qt_item(layer_type, PRE_GLUEQT_LAYER_PATTERN)
+
+    if rec['__main__']['_type'] == 'glue.app.qt.application.GlueApplication':
+        rec['__main__']['_type'] = 'glue_qt.app.application.GlueApplication'
+    viewer_prefix = 'glue.viewers'
+    viewer_prefix_len = len(viewer_prefix)
+    qt_viewer_prefix = 'glue_qt.viewers'
+    plugins = rec['__main__']['plugins']
+    for index, plugin in enumerate(plugins):
+        if plugin.startswith(viewer_prefix):
+            plugins[index] = f"{qt_viewer_prefix}{plugin[viewer_prefix_len:]}"
 
     for key, value in rec.items():
 
-        # This is a patch for session files made with glue 0.12.* or earlier.
-        # When glue-qt was separated out from glue, the class names of the Qt viewers
-        # were changed. This patch simply attempts to do a proper renaming to the new
-        # glue-qt class names.
+        # This is part of the glue-qt patch described above
         value['_type'] = map_qt_viewer(value['_type'])
+        if hasattr(value, 'layers'):
+            for layer in value['layers']:
+                layer['_type'] = map_qt_layer(layer['_type'])
 
         # The following is a patch for session files made with glue 0.15.* or
         # earlier that were read in with a developer version of glue for part of
