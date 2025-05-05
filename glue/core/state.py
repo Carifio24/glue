@@ -1272,13 +1272,34 @@ def apply_inplace_patches(rec):
     need fixing to be interpretable by the current version of glue.
     """
 
-    # The following is a patch for session files made with glue 0.15.* or
-    # earlier that were read in with a developer version of glue for part of
-    # the 0.16 development cycle, and re-saved. Essentially, if coords is set
-    # to the default identity Coordinates class, we need to make sure we
-    # always preserve the world coordinate components, and we do that by
-    # setting force_coords to True.
+    import re
+    PRE_GLUEQT_PATTERN = re.compile(r"^glue\.viewers\.(histogram|image|profile|scatter|table)\.qt\.data_viewer\.(.*)$")
+    def map_qt_viewer(viewer_type):
+        match = PRE_GLUEQT_PATTERN.match(viewer_type)
+        if match is not None:
+            viewer = match.group(1)
+            viewer_cls = match.group(2)
+            return f"glue_qt.viewers.{viewer}.data_viewer.{viewer_cls}"
+
+        if viewer_type == "glue.plugins.dendro_viewer.qt.data_viewer.DendrogramViewer":
+            return "glue_qt.plugins.dendro_viewer.data_viewer.DendrogramViewer"
+
+        return viewer_type
+
     for key, value in rec.items():
+
+        # This is a patch for session files made with glue 0.12.* or earlier.
+        # When glue-qt was separated out from glue, the class names of the Qt viewers
+        # were changed. This patch simply attempts to do a proper renaming to the new
+        # glue-qt class names.
+        value['_type'] = map_qt_viewer(value['_type'])
+
+        # The following is a patch for session files made with glue 0.15.* or
+        # earlier that were read in with a developer version of glue for part of
+        # the 0.16 development cycle, and re-saved. Essentially, if coords is set
+        # to the default identity Coordinates class, we need to make sure we
+        # always preserve the world coordinate components, and we do that by
+        # setting force_coords to True.
         if value['_type'] == 'glue.core.data.Data':
             if 'coords' in value and value['coords'] is not None:
                 coords = rec[value['coords']]
