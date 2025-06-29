@@ -374,6 +374,14 @@ class ColormapRegistry(Registry):
         members.append(['Red-Yellow-Blue', cm.RdYlBu])
         members.append(['Purple-Orange', cm.PuOr])
         members.append(['Purple-Green', cm.PRGn])
+
+        for name, cmap in members[:]:
+            if "-" in name:
+                rev_name = "-".join(reversed(name.split("-")))
+            else:
+                rev_name = f"{name} Reversed"
+            members.append([rev_name, cmap.reversed()])
+
         return members
 
     def add(self, label, cmap):
