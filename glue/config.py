@@ -358,6 +358,14 @@ class ColormapRegistry(Registry):
 
     def default_members(self):
         import matplotlib.cm as cm
+
+        def reversed_entry(name, cmap):
+            if "-" in name:
+                rev_name = "-".join(reversed(name.split("-")))
+            else:
+                rev_name = f"{name} Reversed"
+            return rev_name, cmap.reversed()
+
         members = []
         members.append(['Gray', cm.gray])
         members.append(['Viridis', cm.viridis])
@@ -375,12 +383,8 @@ class ColormapRegistry(Registry):
         members.append(['Purple-Orange', cm.PuOr])
         members.append(['Purple-Green', cm.PRGn])
 
-        for name, cmap in members[:]:
-            if "-" in name:
-                rev_name = "-".join(reversed(name.split("-")))
-            else:
-                rev_name = f"{name} Reversed"
-            members.append([rev_name, cmap.reversed()])
+        reversed_members = [reversed_entry(*entry) for entry in members]
+        members = [item for pair in zip(members, reversed_members) for item in pair]
 
         return members
 
