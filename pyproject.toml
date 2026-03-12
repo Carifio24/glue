@@ -34,7 +34,6 @@ dependencies = [
     "fast_histogram>=0.12",
     "ipython>=4.0",
     "dill>=0.2",
-    "h5py>=2.10",
     "xlrd>=1.2",
     "openpyxl>=3.0",
     "mpl-scatter-density>=0.8",
