@@ -540,8 +540,11 @@ def update_ticks(axes, coord, kinds, is_log, categories, projection='rectilinear
         axis.set_major_locator(LogLocator())
         axis.set_major_formatter(LogFormatterMathtext())
     elif is_cat:
-        locator = MaxNLocator(10, integer=True)
-        locator.view_limits(0, categories.shape[0])
+        # Number of display ticks should be ~ size / 15
+        if coord == "x":
+            axis.set_tick_params(labelrotation=90)
+        axis.set_ticks(range(len(categories)))
+        axis.set_ticklabels(categories)
         format_func = partial(tick_linker, categories)
         formatter = FuncFormatter(format_func)
         axis.set_major_locator(locator)
