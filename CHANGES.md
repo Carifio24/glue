@@ -1,5 +1,30 @@
 # Full changelog
 
+## v1.27.0 - 2026-06-25
+
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+### What's Changed
+
+#### New Features
+
+* Add a compute_histogram helper to glue.utils for the binning part of a histogram by @astrofrog in https://github.com/glue-viz/glue/pull/2584
+
+#### Bug Fixes
+
+* Serialize callables such as numpy array functions by name reference when they don't match another saver by @astrofrog in https://github.com/glue-viz/glue/pull/2582
+* Fix issue with reference data choices and update attributes by @Carifio24 in https://github.com/glue-viz/glue/pull/2577
+* Update methods to use `world_n_dim` instead of `self._data.ndim` by @MatthewPortman in https://github.com/glue-viz/glue/pull/2573
+
+#### Other Changes
+
+* Remove the unmaintained pytest-flake8 dependency by @astrofrog in https://github.com/glue-viz/glue/pull/2585
+
+### New Contributors
+
+* @MatthewPortman made their first contribution in https://github.com/glue-viz/glue/pull/2573
+
+**Full Changelog**: https://github.com/glue-viz/glue/compare/v1.26.0...v1.27.0
+
 ## v1.26.0 - 2026-06-02
 
 <!-- Release notes generated using configuration in .github/release.yml at main -->
