@@ -8,8 +8,6 @@ from contextlib import contextmanager
 import numpy as np
 import pandas as pd
 
-from fast_histogram import histogram1d, histogram2d
-
 from glue.core.message import (DataUpdateMessage, DataRemoveComponentMessage,
                                DataAddComponentMessage, NumericalDataChangedMessage,
                                SubsetCreateMessage, ComponentsChangedMessage,
@@ -27,8 +25,8 @@ from glue.core.visual import VisualAttributes
 from glue.core.contracts import contract
 from glue.core.joins import get_mask_with_key_joins
 from glue.config import settings, data_translator, subset_state_translator
-from glue.utils import (compute_statistic, unbroadcast, iterate_chunks,
-                        datetime64_to_mpl, categorical_ndarray,
+from glue.utils import (compute_statistic, compute_histogram, unbroadcast,
+                        iterate_chunks, categorical_ndarray,
                         format_choices, random_views_for_dask_array,
                         random_indices_for_array)
 from glue.core.coordinate_helpers import axis_label
@@ -1986,83 +1984,9 @@ class Data(BaseCartesianData):
 
             correction = 1.
 
-        if ndim == 1:
-            xmin, xmax = range[0]
-            xmin, xmax = sorted((xmin, xmax))
-            keep = (x >= xmin) & (x <= xmax)
-        else:
-            (xmin, xmax), (ymin, ymax) = range
-            xmin, xmax = sorted((xmin, xmax))
-            ymin, ymax = sorted((ymin, ymax))
-            keep = (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)
-
-        if x.dtype.kind == 'M':
-            x = datetime64_to_mpl(x)
-            xmin = datetime64_to_mpl(xmin)
-            xmax = datetime64_to_mpl(xmax)
-        else:
-            keep &= ~np.isnan(x)
-
-        if ndim > 1:
-            if y.dtype.kind == 'M':
-                y = datetime64_to_mpl(y)
-                ymin = datetime64_to_mpl(ymin)
-                ymax = datetime64_to_mpl(ymax)
-            else:
-                keep &= ~np.isnan(y)
-
-        x = x[keep]
-        if ndim > 1:
-            y = y[keep]
-        if w is not None:
-            w = w[keep]
-
-        # For now, compute dask arrays at this point. In future we could delegate
-        # the histogram calculation to dask. The extra call to
-        # np.asarray is to coerce dask arrays read from
-        # disk with lazy loaders to definitely be numpy arrays
-        if DASK_INSTALLED:
-            if isinstance(x, da.Array):
-                x = np.asarray(x.compute())
-            if ndim > 1 and isinstance(y, da.Array):
-                y = np.asarray(y.compute())
-            if isinstance(w, da.Array):
-                w = np.asarray(w.compute())
-
-        if len(x) == 0:
-            return np.zeros(bins)
-
-        if ndim > 1 and len(y) == 0:
-            return np.zeros(bins)
-
-        if log is not None and log[0]:
-            if xmin < 0 or xmax < 0:
-                return np.zeros(bins)
-            xmin = np.log10(xmin)
-            xmax = np.log10(xmax)
-            x = np.log10(x)
-
-        if ndim > 1 and log is not None and log[1]:
-            if ymin < 0 or ymax < 0:
-                return np.zeros(bins)
-            ymin = np.log10(ymin)
-            ymax = np.log10(ymax)
-            y = np.log10(y)
-
-        # By default fast-histogram drops values that are exactly xmax, so we
-        # increase xmax very slightly to make sure that this doesn't happen, to
-        # be consistent with np.histogram.
-        if ndim >= 1:
-            xmax += 10 * np.spacing(xmax)
-        if ndim >= 2:
-            ymax += 10 * np.spacing(ymax)
-
-        if ndim == 1:
-            range = (xmin, xmax)
-            return histogram1d(x, range=range, bins=bins[0], weights=w) * correction
-        elif ndim > 1:
-            range = [(xmin, xmax), (ymin, ymax)]
-            return histogram2d(x, y, range=range, bins=bins, weights=w) * correction
+        data = [x] if ndim == 1 else [x, y]
+        return compute_histogram(data, range=range, bins=bins,
+                                 weights=w, log=log) * correction
 
     def compute_fixed_resolution_buffer(self, *args, **kwargs):
         from .fixed_resolution_buffer import compute_fixed_resolution_buffer
