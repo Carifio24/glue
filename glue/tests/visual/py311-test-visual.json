@@ -1,11 +1,11 @@
 {
-  "glue.viewers.histogram.tests.test_viewer.test_simple_histogram_viewer": "cb08123fbad135ab614bb7ec13475fcc83321057d884fe80c3a32970b2d14762",
-  "glue.viewers.image.tests.test_viewer.test_simple_image_viewer": "82016f9dfe0a813c23a1facea51e2ac6c2da3b84066606340112c5879667a33b",
-  "glue.viewers.image.tests.test_viewer.test_image_region_layer": "0114922ab0a3980f56252656c69545927841aea0e6950250cdc2b1bafcd19d50",
-  "glue.viewers.image.tests.test_viewer.test_image_region_layer_flip": "a142142f34961aba7e98188ad43abafe0e6e5b82e13e8cdab5131d297ed5832c",
-  "glue.viewers.image.tests.test_viewer.TestWCSRegionDisplay.test_image_wcs_viewer": "eeb40b0a9ac574d1819bd0adab7bce2905b25eebfb23d304b3edb5b37f78588f",
-  "glue.viewers.image.tests.test_viewer.TestWCSRegionDisplay.test_image_flipped_wcs_viewer": "d44822eb30b64558b06b307b1ca979e4133b3ca21491036eac9638d8b6900c49",
-  "glue.viewers.profile.tests.test_viewer.test_simple_profile_viewer": "f68a21be5080fec513388b2d2b220512e7b0df5498e2489da54e58708de435b3",
-  "glue.viewers.scatter.tests.test_viewer.test_simple_scatter_viewer": "1020a7bd3abe40510b9e03047c3b423b75c3c64ac18e6dcd6257173cec1ed53f",
-  "glue.viewers.scatter.tests.test_viewer.test_scatter_density_map": "451884de6482c3177a4e607510fb97db859f5c28628a8250c22e8bc19881c007"
+  "glue.viewers.histogram.tests.test_viewer.test_simple_histogram_viewer": "8aadc08ce7cc5a26a5a60d0c85c5f6c1b62cd50f747c090ddab501df1f675611",
+  "glue.viewers.image.tests.test_viewer.test_simple_image_viewer": "eb81254e0ebe8a67745fd17b9f873a6e8a34540d71fab66ccf4a1eb9bc750bee",
+  "glue.viewers.image.tests.test_viewer.test_image_region_layer": "1a7da281ce3d0964d8a795cd7f7b6255bf2fcdb5bc26183529cb55b2aeaf4453",
+  "glue.viewers.image.tests.test_viewer.test_image_region_layer_flip": "5a1be1f88bb1ead3b14f8262298cad3427981b553300e9ecfff44e70788145c6",
+  "glue.viewers.image.tests.test_viewer.TestWCSRegionDisplay.test_image_wcs_viewer": "d38b1d94c81dd2f7aad5d9b1d767ffda902aecbaca9904666d335f468b0ed313",
+  "glue.viewers.image.tests.test_viewer.TestWCSRegionDisplay.test_image_flipped_wcs_viewer": "c28bda215c5e873bcf9118addf858055810278dec99658bd93e350c4225d9726",
+  "glue.viewers.profile.tests.test_viewer.test_simple_profile_viewer": "96d3a51fea89a720ea5afaae94c475061e1151317f336deaa2695746d8910466",
+  "glue.viewers.scatter.tests.test_viewer.test_simple_scatter_viewer": "fc9f431132c6bd6e8b3ab458e652e636e057bf4cf273b18665d3925d8e6f3819",
+  "glue.viewers.scatter.tests.test_viewer.test_scatter_density_map": "51cd7df0a7063c230d96aad6ea2f58e8b054e35008576f7776979e7b7a79cd3d"
 }
