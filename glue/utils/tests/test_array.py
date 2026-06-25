@@ -9,7 +9,8 @@ from glue.tests.helpers import HYPOTHESIS_INSTALLED
 from ..array import (view_shape, coerce_numeric, stack_view, unique,
                      shape_to_string, check_sorted, pretty_number, unbroadcast,
                      iterate_chunks, combine_slices, nanmean, nanmedian, nansum,
-                     nanmin, nanmax, format_minimal, compute_statistic, categorical_ndarray,
+                     nanmin, nanmax, format_minimal, compute_statistic, compute_histogram,
+                     categorical_ndarray,
                      index_lookup, broadcast_arrays_minimal, nansum_with_nan_for_empty)
 
 
@@ -330,6 +331,40 @@ CASES = [('mean', [-3, 1, 6], dict(), 4 / 3),
 @pytest.mark.parametrize(('statistic', 'data', 'kwargs', 'result'), CASES)
 def test_compute_statistic(statistic, data, kwargs, result):
     assert_allclose(compute_statistic(statistic, data, **kwargs), result)
+
+
+def test_compute_histogram_1d():
+    # NaN and out-of-range values are dropped.
+    x = np.array([0.5, 1.5, 1.5, 2.5, 2.5, 2.5, np.nan, 100], dtype=float)
+    result = compute_histogram([x], range=[(0, 4)], bins=[4])
+    assert_allclose(result, [1, 2, 3, 0])
+
+
+def test_compute_histogram_1d_log():
+    # Values chosen to fall in the middle of the (log-spaced) bins.
+    x = np.array([10 ** 0.5, 10 ** 1.5, 10 ** 1.5, 10 ** 2.5], dtype=float)
+    result = compute_histogram([x], range=[(1, 1000)], bins=[3], log=[True])
+    assert_allclose(result, [1, 2, 1])
+
+
+def test_compute_histogram_1d_weights():
+    x = np.array([0.5, 1.5, 1.5], dtype=float)
+    w = np.array([1, 2, 3], dtype=float)
+    result = compute_histogram([x], range=[(0, 2)], bins=[2], weights=w)
+    assert_allclose(result, [1, 5])
+
+
+def test_compute_histogram_2d():
+    x = np.array([0.5, 0.5, 1.5], dtype=float)
+    y = np.array([0.5, 1.5, 1.5], dtype=float)
+    result = compute_histogram([x, y], range=[(0, 2), (0, 2)], bins=[2, 2])
+    assert_allclose(result, [[1, 1], [0, 1]])
+
+
+def test_compute_histogram_empty():
+    x = np.array([10, 20], dtype=float)
+    result = compute_histogram([x], range=[(0, 1)], bins=[4])
+    assert_allclose(result, [0, 0, 0, 0])
 
 
 def test_index_lookup():

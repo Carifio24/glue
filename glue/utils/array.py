@@ -5,12 +5,21 @@ from numpy.lib.stride_tricks import as_strided
 
 import pandas as pd
 
+from fast_histogram import histogram1d, histogram2d
+
+try:
+    import dask.array as da
+    DASK_INSTALLED = True
+except ImportError:
+    DASK_INSTALLED = False
+
 # For backward-compatibility with when we used to define bottleneck wrappers
 from numpy import nanmin, nanmax, nanmean, nanmedian, nansum  # noqa
 
 __all__ = ['unique', 'shape_to_string', 'view_shape', 'stack_view',
            'coerce_numeric', 'check_sorted', 'unbroadcast',
            'iterate_chunks', 'combine_slices', 'format_minimal', 'compute_statistic',
+           'compute_histogram',
            'categorical_ndarray', 'index_lookup', 'ensure_numerical',
            'broadcast_arrays_minimal', 'random_views_for_dask_array',
            'random_indices_for_array']
@@ -492,6 +501,115 @@ def compute_statistic(statistic, data, mask=None, axis=None, finite=True,
             return function(data, percentile, axis=axis)
         else:
             return function(data, axis=axis)
+
+
+def compute_histogram(data, range, bins, weights=None, log=None):
+    """
+    Compute an n-dimensional histogram with regularly spaced bins.
+
+    Currently this only implements 1-D and 2-D histograms. The values are
+    assumed to have already been restricted to any subset of interest - this
+    function only takes care of the binning itself (range selection, optional
+    log scaling, and dropping NaN values).
+
+    Parameters
+    ----------
+    data : list of `~numpy.ndarray`
+        The array of values to histogram, with one array per dimension (one or
+        two).
+    range : list of tuple
+        The ``(min, max)`` of the histogram range, with one tuple per dimension.
+    bins : list of int
+        The number of bins, with one value per dimension.
+    weights : `~numpy.ndarray`, optional
+        The weights to assign to each value.
+    log : list of bool, optional
+        Whether to compute the histogram in log space, with one value per
+        dimension.
+    """
+
+    # NOTE: this function should not ever have to use glue-specific objects.
+
+    from glue.utils import datetime64_to_mpl
+
+    ndim = len(data)
+
+    if ndim > 2:
+        raise NotImplementedError("Only 1-D and 2-D histograms are supported")
+
+    x = data[0]
+    y = data[1] if ndim > 1 else None
+    w = weights
+
+    if ndim == 1:
+        xmin, xmax = sorted(range[0])
+        keep = (x >= xmin) & (x <= xmax)
+    else:
+        (xmin, xmax), (ymin, ymax) = range
+        xmin, xmax = sorted((xmin, xmax))
+        ymin, ymax = sorted((ymin, ymax))
+        keep = (x >= xmin) & (x <= xmax) & (y >= ymin) & (y <= ymax)
+
+    if x.dtype.kind == 'M':
+        x = datetime64_to_mpl(x)
+        xmin = datetime64_to_mpl(xmin)
+        xmax = datetime64_to_mpl(xmax)
+    else:
+        keep &= ~np.isnan(x)
+
+    if ndim > 1:
+        if y.dtype.kind == 'M':
+            y = datetime64_to_mpl(y)
+            ymin = datetime64_to_mpl(ymin)
+            ymax = datetime64_to_mpl(ymax)
+        else:
+            keep &= ~np.isnan(y)
+
+    x = x[keep]
+    if ndim > 1:
+        y = y[keep]
+    if w is not None:
+        w = w[keep]
+
+    # Coerce dask arrays (e.g. read from disk with lazy loaders) to numpy. We do
+    # this after applying the range selection above so that we only compute the
+    # values we actually need.
+    if DASK_INSTALLED:
+        if isinstance(x, da.Array):
+            x = np.asarray(x.compute())
+        if ndim > 1 and isinstance(y, da.Array):
+            y = np.asarray(y.compute())
+        if isinstance(w, da.Array):
+            w = np.asarray(w.compute())
+
+    if len(x) == 0 or (ndim > 1 and len(y) == 0):
+        return np.zeros(bins)
+
+    if log is not None and log[0]:
+        if xmin < 0 or xmax < 0:
+            return np.zeros(bins)
+        xmin = np.log10(xmin)
+        xmax = np.log10(xmax)
+        x = np.log10(x)
+
+    if ndim > 1 and log is not None and log[1]:
+        if ymin < 0 or ymax < 0:
+            return np.zeros(bins)
+        ymin = np.log10(ymin)
+        ymax = np.log10(ymax)
+        y = np.log10(y)
+
+    # By default fast-histogram drops values that are exactly xmax, so we
+    # increase xmax very slightly to make sure that this doesn't happen, to be
+    # consistent with np.histogram.
+    xmax += 10 * np.spacing(xmax)
+    if ndim > 1:
+        ymax += 10 * np.spacing(ymax)
+
+    if ndim == 1:
+        return histogram1d(x, range=(xmin, xmax), bins=bins[0], weights=w)
+    else:
+        return histogram2d(x, y, range=[(xmin, xmax), (ymin, ymax)], bins=bins, weights=w)
 
 
 class categorical_ndarray(np.ndarray):
