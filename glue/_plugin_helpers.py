@@ -57,7 +57,10 @@ class PluginConfig(object):
 
         import configparser
 
-        config = configparser.ConfigParser()
+        # Use strict=False so that a file corrupted by a previous non-atomic or
+        # concurrent write (which may contain duplicate options) can still be
+        # read instead of raising DuplicateOptionError.
+        config = configparser.ConfigParser(strict=False)
         read = config.read(plugin_cfg)
 
         if len(read) == 0 or not config.has_section('plugins'):
@@ -88,11 +91,26 @@ class PluginConfig(object):
         for key in sorted(self.plugins):
             config.set('plugins', key, value=str(int(self.plugins[key])))
 
-        if not os.path.exists(cfg_dir):
-            os.mkdir(cfg_dir)
+        os.makedirs(cfg_dir, exist_ok=True)
 
-        with open(plugin_cfg, 'w') as fout:
-            config.write(fout)
+        # Write atomically: serialize to a uniquely-named temporary file in the
+        # same directory and rename it into place. os.replace is atomic on both
+        # POSIX and Windows, so a concurrent reader (e.g. another process during
+        # a parallel test run) always sees either the old or the new file, never
+        # a partially-written or interleaved one.
+        import tempfile
+        fd, tmp_path = tempfile.mkstemp(dir=cfg_dir, prefix='plugins.cfg.',
+                                        suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w') as fout:
+                config.write(fout)
+            os.replace(tmp_path, plugin_cfg)
+        except BaseException:
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+            raise
 
     def filter(self, keep):
         """

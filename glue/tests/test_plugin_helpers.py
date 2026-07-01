@@ -1,0 +1,65 @@
+import os
+import configparser
+from concurrent.futures import ThreadPoolExecutor
+
+from glue._plugin_helpers import PluginConfig
+
+
+def test_save_load_roundtrip(tmp_path, monkeypatch):
+    monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
+
+    PluginConfig(plugins={'plugin_a': True, 'plugin_b': False}).save()
+
+    loaded = PluginConfig.load()
+    assert loaded.plugins['plugin_a'] is True
+    assert loaded.plugins['plugin_b'] is False
+
+
+def test_save_leaves_no_temporary_files(tmp_path, monkeypatch):
+    monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
+
+    PluginConfig(plugins={'plugin_a': True}).save()
+
+    assert os.listdir(tmp_path) == ['plugins.cfg']
+
+
+def test_load_tolerates_duplicate_options(tmp_path, monkeypatch):
+    # A file corrupted by a previous concurrent/non-atomic write can contain
+    # the same option twice. Reading it should not raise DuplicateOptionError.
+    monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
+
+    (tmp_path / 'plugins.cfg').write_text(
+        "[plugins]\ndendro_factory = 1\ndendro_factory = 1\n")
+
+    loaded = PluginConfig.load()
+    assert loaded.plugins['dendro_factory'] is True
+
+
+def test_concurrent_save_and_load(tmp_path, monkeypatch):
+    # Regression test: hammering save() from several threads while another
+    # thread repeatedly loads must never expose a partially written or
+    # duplicated config, because save() renames the file into place atomically.
+    monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
+
+    plugins = {'plugin_{0}'.format(i): True for i in range(50)}
+    plugin_cfg = str(tmp_path / 'plugins.cfg')
+
+    def writer():
+        for _ in range(50):
+            PluginConfig(plugins=plugins).save()
+
+    def reader():
+        # Parse strictly so that a torn or duplicated write raises instead of
+        # being silently tolerated; the atomic save() must prevent that.
+        for _ in range(200):
+            if os.path.exists(plugin_cfg):
+                configparser.ConfigParser(strict=True).read(plugin_cfg)
+
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        futures = [executor.submit(writer) for _ in range(4)]
+        futures += [executor.submit(reader) for _ in range(2)]
+        for future in futures:
+            future.result()
+
+    assert os.listdir(tmp_path) == ['plugins.cfg']
+    assert PluginConfig.load().plugins == plugins
