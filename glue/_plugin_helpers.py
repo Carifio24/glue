@@ -8,6 +8,7 @@
 
 import os
 import sys
+import warnings
 from collections import defaultdict
 
 if sys.version_info >= (3, 10):
@@ -57,11 +58,20 @@ class PluginConfig(object):
 
         import configparser
 
-        # Use strict=False so that a file corrupted by a previous non-atomic or
-        # concurrent write (which may contain duplicate options) can still be
-        # read instead of raising DuplicateOptionError.
-        config = configparser.ConfigParser(strict=False)
-        read = config.read(plugin_cfg)
+        config = configparser.ConfigParser()
+        try:
+            read = config.read(plugin_cfg)
+        except configparser.Error as exc:
+            # The file may have been corrupted by a previous non-atomic or
+            # concurrent write and e.g. contain duplicate options. Fall back
+            # to a tolerant parse (last occurrence of an option wins) rather
+            # than failing - the file will be rewritten cleanly on the next
+            # save().
+            warnings.warn(f"Error while reading {plugin_cfg}:\n{exc}\n"
+                          f"Falling back to parsing the file with "
+                          f"strict=False.")
+            config = configparser.ConfigParser(strict=False)
+            read = config.read(plugin_cfg)
 
         if len(read) == 0 or not config.has_section('plugins'):
             return cls()

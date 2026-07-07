@@ -2,6 +2,8 @@ import os
 import configparser
 from concurrent.futures import ThreadPoolExecutor
 
+import pytest
+
 from glue._plugin_helpers import PluginConfig
 
 
@@ -25,13 +27,15 @@ def test_save_leaves_no_temporary_files(tmp_path, monkeypatch):
 
 def test_load_tolerates_duplicate_options(tmp_path, monkeypatch):
     # A file corrupted by a previous concurrent/non-atomic write can contain
-    # the same option twice. Reading it should not raise DuplicateOptionError.
+    # the same option twice. Reading it should warn, not raise
+    # DuplicateOptionError.
     monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
 
     (tmp_path / 'plugins.cfg').write_text(
         "[plugins]\ndendro_factory = 1\ndendro_factory = 1\n")
 
-    loaded = PluginConfig.load()
+    with pytest.warns(UserWarning, match='Falling back to parsing the file'):
+        loaded = PluginConfig.load()
     assert loaded.plugins['dendro_factory'] is True
 
 
