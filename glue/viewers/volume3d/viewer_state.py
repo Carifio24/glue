@@ -67,14 +67,19 @@ class VolumeViewerState3D(ViewerState3D):
                     return
 
     def _reference_data_changed(self, data):
-        if data is None:
-            self.slices = ()
-        else:
-            self.slices = (0,) * data.ndim
+        # This signal can get emitted if just the choices but not the actual
+        # reference data change, so we check here that the reference data has
+        # actually changed
+        if data is not getattr(self, '_last_reference_data', None):
+            self._last_reference_data = data
+            if data is None:
+                self.slices = ()
+            else:
+                self.slices = (0,) * data.ndim
 
-        with delay_callback(self, "x_att", "y_att", "z_att"):
-            self._update_attributes(data)
-            self._set_up_attributes(data)
+            with delay_callback(self, "x_att", "y_att", "z_att"):
+                self._update_attributes(data)
+                self._set_up_attributes(data)
 
     def _update_attributes(self, data=None):
 
