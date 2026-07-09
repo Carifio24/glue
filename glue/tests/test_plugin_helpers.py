@@ -28,6 +28,25 @@ def test_save_load_roundtrip(tmp_path, monkeypatch):
     assert loaded.plugins['plugin_b'] is False
 
 
+def test_save_skips_write_when_unchanged(tmp_path, monkeypatch):
+    import tempfile
+
+    monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
+    PluginConfig(plugins={'plugin_a': True}).save()
+
+    with monkeypatch.context() as m:
+        def _fail(*args, **kwargs):
+            raise AssertionError('save() rewrote the file although nothing changed')
+        m.setattr(tempfile, 'mkstemp', _fail)
+
+        # Identical content must not touch disk at all.
+        PluginConfig(plugins={'plugin_a': True}).save()
+
+        # A genuine change must still attempt a write.
+        with pytest.raises(AssertionError):
+            PluginConfig(plugins={'plugin_a': False}).save()
+
+
 def test_save_leaves_no_temporary_files(tmp_path, monkeypatch):
     monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
 

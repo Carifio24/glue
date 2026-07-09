@@ -93,6 +93,13 @@ class PluginConfig(object):
 
         plugin_cfg = os.path.join(cfg_dir, 'plugins.cfg')
 
+        # Don't rewrite the file when nothing has changed. In the common case
+        # the config already lists every known plugin, so this avoids touching
+        # disk on every startup and removes almost all of the opportunity for
+        # concurrent processes to write the file at the same time.
+        if dict(PluginConfig.load().plugins) == dict(self.plugins):
+            return
+
         import configparser
 
         config = configparser.ConfigParser()
@@ -108,30 +115,30 @@ class PluginConfig(object):
         # destination in a single step, so a concurrent reader (e.g. another
         # process during a parallel test run) always sees either the old or the
         # new file, never a partially-written or interleaved one.
-        import time
         import tempfile
         fd, tmp_path = tempfile.mkstemp(dir=cfg_dir, prefix='plugins.cfg.',
                                         suffix='.tmp')
         try:
             with os.fdopen(fd, 'w') as fout:
                 config.write(fout)
-            # Windows refuses to rename over a file that another process or
-            # thread currently has open (PermissionError / WinError 5), unlike
-            # POSIX. Retry briefly to ride out those transient sharing windows.
-            for attempt in range(20):
-                try:
-                    os.replace(tmp_path, plugin_cfg)
-                    break
-                except PermissionError:
-                    if attempt == 19:
-                        raise
-                    time.sleep(0.05)
-        except BaseException:
             try:
-                os.remove(tmp_path)
+                os.replace(tmp_path, plugin_cfg)
             except OSError:
-                pass
-            raise
+                # Windows refuses to rename over a file that another process
+                # currently has open, unlike POSIX. That can only happen once a
+                # valid file already exists (every write is a whole-file rename)
+                # and the config is non-critical, so ignore it. A genuine
+                # failure leaves no file in place and is re-raised.
+                if not os.path.exists(plugin_cfg):
+                    raise
+        finally:
+            # Remove the temporary file if the rename did not consume it (an
+            # error, or an ignored Windows sharing conflict).
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
 
     def filter(self, keep):
         """
