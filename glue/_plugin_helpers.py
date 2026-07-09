@@ -104,17 +104,28 @@ class PluginConfig(object):
         os.makedirs(cfg_dir, exist_ok=True)
 
         # Write atomically: serialize to a uniquely-named temporary file in the
-        # same directory and rename it into place. os.replace is atomic on both
-        # POSIX and Windows, so a concurrent reader (e.g. another process during
-        # a parallel test run) always sees either the old or the new file, never
-        # a partially-written or interleaved one.
+        # same directory and rename it into place. os.replace overwrites the
+        # destination in a single step, so a concurrent reader (e.g. another
+        # process during a parallel test run) always sees either the old or the
+        # new file, never a partially-written or interleaved one.
+        import time
         import tempfile
         fd, tmp_path = tempfile.mkstemp(dir=cfg_dir, prefix='plugins.cfg.',
                                         suffix='.tmp')
         try:
             with os.fdopen(fd, 'w') as fout:
                 config.write(fout)
-            os.replace(tmp_path, plugin_cfg)
+            # Windows refuses to rename over a file that another process or
+            # thread currently has open (PermissionError / WinError 5), unlike
+            # POSIX. Retry briefly to ride out those transient sharing windows.
+            for attempt in range(20):
+                try:
+                    os.replace(tmp_path, plugin_cfg)
+                    break
+                except PermissionError:
+                    if attempt == 19:
+                        raise
+                    time.sleep(0.05)
         except BaseException:
             try:
                 os.remove(tmp_path)

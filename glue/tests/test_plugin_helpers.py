@@ -54,10 +54,15 @@ def test_concurrent_save_and_load(tmp_path, monkeypatch):
 
     def reader():
         # Parse strictly so that a torn or duplicated write raises instead of
-        # being silently tolerated; the atomic save() must prevent that.
+        # being silently tolerated; the atomic save() must prevent that. A
+        # missing file is fine (read() returns []), and on Windows an open that
+        # races an atomic replace can be transiently denied, which is a sharing
+        # artifact rather than config corruption, so ignore PermissionError.
         for _ in range(200):
-            if os.path.exists(plugin_cfg):
+            try:
                 configparser.ConfigParser(strict=True).read(plugin_cfg)
+            except PermissionError:
+                pass
 
     with ThreadPoolExecutor(max_workers=6) as executor:
         futures = [executor.submit(writer) for _ in range(4)]
