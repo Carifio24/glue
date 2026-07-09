@@ -52,7 +52,7 @@ def test_save_leaves_no_temporary_files(tmp_path, monkeypatch):
 
     PluginConfig(plugins={'plugin_a': True}).save()
 
-    assert os.listdir(tmp_path) == ['plugins.cfg']
+    assert [p.name for p in tmp_path.iterdir()] == ['plugins.cfg']
 
 
 def test_load_tolerates_duplicate_options(tmp_path, monkeypatch):
@@ -100,5 +100,5 @@ def test_concurrent_save_and_load(tmp_path, monkeypatch):
         for future in futures:
             future.result()
 
-    assert os.listdir(tmp_path) == ['plugins.cfg']
+    assert [p.name for p in tmp_path.iterdir()] == ['plugins.cfg']
     assert PluginConfig.load().plugins == plugins

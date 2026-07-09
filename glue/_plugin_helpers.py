@@ -9,6 +9,7 @@
 import os
 import sys
 import warnings
+from pathlib import Path
 from collections import defaultdict
 
 if sys.version_info >= (3, 10):
@@ -122,7 +123,7 @@ class PluginConfig(object):
             with os.fdopen(fd, 'w') as fout:
                 config.write(fout)
             try:
-                os.replace(tmp_path, plugin_cfg)
+                Path(tmp_path).replace(plugin_cfg)
             except OSError:
                 # Windows refuses to rename over a file that another process
                 # currently has open, unlike POSIX. That can only happen once a
