@@ -1,8 +1,6 @@
 import os
 import sys
 
-from glue.config import CFG_DIR as CFG_DIR_ORIG
-
 STDERR_ORIGINAL = sys.stderr
 
 ON_APPVEYOR = os.environ.get('APPVEYOR', 'False') == 'True'
@@ -40,12 +38,9 @@ def pytest_configure(config):
                 # that does noting, effectively disabling it.
                 setattr(helpers, attr, lambda f: f)
 
-    # Make sure we don't affect the real glue config dir
-    import tempfile
-    from glue import config
-    config.CFG_DIR = tempfile.mkdtemp()
-
-    # Force loading of plugins
+    # The config dir is redirected to a temporary location by the bundled
+    # pytest plugin (glue._pytest_plugin), so loading plugins here (and any
+    # writes it triggers) does not touch the real glue config dir.
     from glue.main import load_plugins
     load_plugins()
 
@@ -53,7 +48,3 @@ def pytest_configure(config):
 def pytest_unconfigure(config):
 
     os.environ.pop('GLUE_TESTING')
-
-    # Reset configuration directory to original one
-    from glue import config
-    config.CFG_DIR = CFG_DIR_ORIG

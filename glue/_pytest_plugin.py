@@ -14,6 +14,8 @@ set ``PYTEST_DISABLE_PLUGIN_AUTOLOAD`` to disable autoloaded plugins entirely.
 import shutil
 import tempfile
 
+import pytest
+
 
 def pytest_addoption(parser):
     parser.addini('glue_isolate_config',
@@ -21,6 +23,9 @@ def pytest_addoption(parser):
                   type='bool', default=True)
 
 
+# tryfirst so the config dir is redirected before any other plugin or conftest
+# (e.g. glue's own) triggers plugin loading and writes into it.
+@pytest.hookimpl(tryfirst=True)
 def pytest_configure(config):
     if not config.getini('glue_isolate_config'):
         return
@@ -29,6 +34,7 @@ def pytest_configure(config):
 
     # mkdtemp creates a uniquely-named directory, so each process (and each
     # xdist worker) gets its own without needing to consult the worker id.
+    config._glue_original_cfg_dir = glue_config.CFG_DIR
     cfg_dir = tempfile.mkdtemp(prefix='glue-test-cfg-')
     config._glue_isolated_cfg_dir = cfg_dir
     glue_config.CFG_DIR = cfg_dir
@@ -37,4 +43,6 @@ def pytest_configure(config):
 def pytest_unconfigure(config):
     cfg_dir = getattr(config, '_glue_isolated_cfg_dir', None)
     if cfg_dir is not None:
+        from glue import config as glue_config
+        glue_config.CFG_DIR = getattr(config, '_glue_original_cfg_dir', glue_config.CFG_DIR)
         shutil.rmtree(cfg_dir, ignore_errors=True)
