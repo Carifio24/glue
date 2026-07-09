@@ -47,6 +47,26 @@ def test_save_skips_write_when_unchanged(tmp_path, monkeypatch):
             PluginConfig(plugins={'plugin_a': False}).save()
 
 
+def test_save_warns_when_rename_blocked(tmp_path, monkeypatch):
+    # Simulate Windows refusing the atomic rename because another process has
+    # the config file open: the existing file must be left in place and a
+    # warning emitted instead of the update being dropped silently.
+    from pathlib import Path
+
+    monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
+    PluginConfig(plugins={'plugin_a': True}).save()
+
+    def _blocked(self, target):
+        raise OSError('the file is in use by another process')
+    monkeypatch.setattr(Path, 'replace', _blocked)
+
+    with pytest.warns(UserWarning, match='file is in use by another process'):
+        PluginConfig(plugins={'plugin_a': False}).save()
+
+    assert [p.name for p in tmp_path.iterdir()] == ['plugins.cfg']
+    assert PluginConfig.load().plugins['plugin_a'] is True
+
+
 def test_save_leaves_no_temporary_files(tmp_path, monkeypatch):
     monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
 

@@ -87,19 +87,19 @@ class PluginConfig(object):
 
     def save(self):
 
-        # Import at runtime because some tests change this value. We also don't
-        # just import the variable directly otherwise it is cached.
-        from glue import config
-        cfg_dir = config.CFG_DIR
-
-        plugin_cfg = os.path.join(cfg_dir, 'plugins.cfg')
-
         # Don't rewrite the file when nothing has changed. In the common case
         # the config already lists every known plugin, so this avoids touching
         # disk on every startup and removes almost all of the opportunity for
         # concurrent processes to write the file at the same time.
         if dict(PluginConfig.load().plugins) == dict(self.plugins):
             return
+
+        # Import at runtime because some tests change this value. We also don't
+        # just import the variable directly otherwise it is cached.
+        from glue import config
+        cfg_dir = config.CFG_DIR
+
+        plugin_cfg = os.path.join(cfg_dir, 'plugins.cfg')
 
         import configparser
 
@@ -127,11 +127,17 @@ class PluginConfig(object):
             except OSError:
                 # Windows refuses to rename over a file that another process
                 # currently has open, unlike POSIX. That can only happen once a
-                # valid file already exists (every write is a whole-file rename)
-                # and the config is non-critical, so ignore it. A genuine
-                # failure leaves no file in place and is re-raised.
+                # valid file already exists (every write is a whole-file
+                # rename), so the old config stays in place; warn that the
+                # update was dropped rather than failing. A genuine failure
+                # leaves no file in place and is re-raised.
                 if not os.path.exists(plugin_cfg):
                     raise
+                warnings.warn(f"Could not write the updated plugin "
+                              f"configuration to {plugin_cfg} because the "
+                              f"file is in use by another process; the "
+                              f"existing configuration has been left "
+                              f"unchanged.")
         finally:
             # Remove the temporary file if the rename did not consume it (an
             # error, or an ignored Windows sharing conflict).
