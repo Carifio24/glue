@@ -93,6 +93,9 @@ build-backend = 'setuptools.build_meta'
 zip-safe = false
 include-package-data = false
 
+[project.entry-points."pytest11"]
+glue = "glue._pytest_plugin"
+
 [project.entry-points."glue.plugins"]
 coordinate_helpers = "glue.plugins.coordinate_helpers:setup"
 wcs_autolinking = "glue.plugins.wcs_autolinking:setup"

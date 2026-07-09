@@ -7,6 +7,17 @@ import pytest
 from glue._plugin_helpers import PluginConfig
 
 
+def test_config_dir_isolated_by_pytest_plugin(request):
+    # The bundled pytest plugin (glue._pytest_plugin) redirects the config dir
+    # to a per-process temporary location during tests, which is what keeps
+    # parallel workers from sharing plugins.cfg. Skip only if it was disabled.
+    if not request.config.getini('glue_isolate_config'):
+        pytest.skip('glue config isolation disabled via glue_isolate_config')
+
+    import glue.config
+    assert os.path.basename(glue.config.CFG_DIR).startswith('glue-test-cfg-')
+
+
 def test_save_load_roundtrip(tmp_path, monkeypatch):
     monkeypatch.setattr('glue.config.CFG_DIR', str(tmp_path))
 
