@@ -8,6 +8,8 @@
 
 import os
 import sys
+import warnings
+from pathlib import Path
 from collections import defaultdict
 
 if sys.version_info >= (3, 10):
@@ -58,7 +60,19 @@ class PluginConfig(object):
         import configparser
 
         config = configparser.ConfigParser()
-        read = config.read(plugin_cfg)
+        try:
+            read = config.read(plugin_cfg)
+        except configparser.Error as exc:
+            # The file may have been corrupted by a previous non-atomic or
+            # concurrent write and e.g. contain duplicate options. Fall back
+            # to a tolerant parse (last occurrence of an option wins) rather
+            # than failing - the file will be rewritten cleanly on the next
+            # save().
+            warnings.warn(f"Error while reading {plugin_cfg}:\n{exc}\n"
+                          f"Falling back to parsing the file with "
+                          f"strict=False.")
+            config = configparser.ConfigParser(strict=False)
+            read = config.read(plugin_cfg)
 
         if len(read) == 0 or not config.has_section('plugins'):
             return cls()
@@ -72,6 +86,13 @@ class PluginConfig(object):
         return self
 
     def save(self):
+
+        # Don't rewrite the file when nothing has changed. In the common case
+        # the config already lists every known plugin, so this avoids touching
+        # disk on every startup and removes almost all of the opportunity for
+        # concurrent processes to write the file at the same time.
+        if dict(PluginConfig.load().plugins) == dict(self.plugins):
+            return
 
         # Import at runtime because some tests change this value. We also don't
         # just import the variable directly otherwise it is cached.
@@ -88,11 +109,43 @@ class PluginConfig(object):
         for key in sorted(self.plugins):
             config.set('plugins', key, value=str(int(self.plugins[key])))
 
-        if not os.path.exists(cfg_dir):
-            os.mkdir(cfg_dir)
+        os.makedirs(cfg_dir, exist_ok=True)
 
-        with open(plugin_cfg, 'w') as fout:
-            config.write(fout)
+        # Write atomically: serialize to a uniquely-named temporary file in the
+        # same directory and rename it into place. os.replace overwrites the
+        # destination in a single step, so a concurrent reader (e.g. another
+        # process during a parallel test run) always sees either the old or the
+        # new file, never a partially-written or interleaved one.
+        import tempfile
+        fd, tmp_path = tempfile.mkstemp(dir=cfg_dir, prefix='plugins.cfg.',
+                                        suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w') as fout:
+                config.write(fout)
+            try:
+                Path(tmp_path).replace(plugin_cfg)
+            except OSError:
+                # Windows refuses to rename over a file that another process
+                # currently has open, unlike POSIX. That can only happen once a
+                # valid file already exists (every write is a whole-file
+                # rename), so the old config stays in place; warn that the
+                # update was dropped rather than failing. A genuine failure
+                # leaves no file in place and is re-raised.
+                if not os.path.exists(plugin_cfg):
+                    raise
+                warnings.warn(f"Could not write the updated plugin "
+                              f"configuration to {plugin_cfg} because the "
+                              f"file is in use by another process; the "
+                              f"existing configuration has been left "
+                              f"unchanged.")
+        finally:
+            # Remove the temporary file if the rename did not consume it (an
+            # error, or an ignored Windows sharing conflict).
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
 
     def filter(self, keep):
         """
