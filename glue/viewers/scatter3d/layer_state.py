@@ -60,7 +60,7 @@ class ScatterLayerState3D(LayerState3D):
 
         self._sync_markersize = None
 
-        super(ScatterLayerState3D, self).__init__(layer=layer)
+        super(ScatterLayerState3D, self).__init__(layer=layer, **kwargs)
 
         if self.layer is not None:
 

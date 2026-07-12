@@ -29,7 +29,7 @@ class VolumeLayerState3D(LayerState3D, StretchStateMixin):
 
     def __init__(self, layer=None, **kwargs):
 
-        super(VolumeLayerState3D, self).__init__(layer=layer)
+        super(VolumeLayerState3D, self).__init__(layer=layer, **kwargs)
 
         if self.layer is not None:
 
