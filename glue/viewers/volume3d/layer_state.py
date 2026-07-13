@@ -4,13 +4,18 @@ from echo import (CallbackProperty, SelectionCallbackProperty,
                   CallbackPropertyAlias, delay_callback)
 from glue.core.state_objects import StateAttributeLimitsHelper
 from glue.core.data_combo_helper import ComponentIDComboHelper
-from glue.viewers.common.stretch_state_mixin import StretchStateMixin
+from glue.viewers.common.stretch_state_mixin import StretchStateMixin, create_stretch_state_mixin
 from ..common3d.layer_state import LayerState3D
 
 __all__ = ['VolumeLayerState3D']
 
 
-class VolumeLayerState3D(LayerState3D, StretchStateMixin):
+ColorStretchStateMixin = create_stretch_state_mixin(
+    stretch_name="color_stretch",
+)
+
+
+class VolumeLayerState3D(LayerState3D, StretchStateMixin, ColorStretchStateMixin):
     """
     A state object for volume layers
     """
@@ -45,6 +50,7 @@ class VolumeLayerState3D(LayerState3D, StretchStateMixin):
         VolumeLayerState3D.color_mode.set_choices(self, ['Fixed', 'Linear'])
 
         self.setup_stretch_callback()
+        self.setup_color_stretch_callback()
 
         self.add_callback('layer', self._on_layer_change)
         if layer is not None:
